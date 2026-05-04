@@ -57,7 +57,7 @@ class Object:
 
     def _combined_transform(self):
         combined = glm.mat4(1.0)
-        for kind, params in zip(self.transformations, self.parameters):
+        for kind, params in zip(reversed(self.transformations), reversed(self.parameters)):
             if params is None:
                 raise RuntimeError(f"Parameters not set for transformation '{kind}'.")
             combined = combined * self._build_matrix(kind, params)
