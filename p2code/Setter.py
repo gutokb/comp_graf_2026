@@ -1,14 +1,19 @@
 import glfw
 from OpenGL.GL import *
-
-
-
-from OpenGL.GL import *
+import os
 
 class Shader:
     def __init__(self, vertexPath: str, fragmentPath: str):
+        # Initialize ID to None to avoid AttributeError if loading fails
+        self.ID = None
+        
         # 1. retrieve the vertex/fragment source code from filePath
         try:
+            # Get the directory of this script and construct absolute paths
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            vertexPath = os.path.join(script_dir, vertexPath)
+            fragmentPath = os.path.join(script_dir, fragmentPath)
+            
             # open files
             vShaderFile = open(vertexPath)
             fShaderFile = open(fragmentPath)
@@ -41,19 +46,23 @@ class Shader:
             glDeleteShader(vertex)
             glDeleteShader(fragment)
         
-        except IOError:
-            print("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ")
+        except IOError as e:
+            print(f"ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: {e}")
             
         
 
     # get program
     # ------------------------------------------------------------------------
     def getProgram(self):
+        if self.ID is None:
+            raise RuntimeError("Shader program failed to load. Check file paths.")
         return self.ID
         
     # activate the shader
     # ------------------------------------------------------------------------
     def use(self) -> None:
+        if self.ID is None:
+            raise RuntimeError("Cannot use shader program - shader failed to load.")
         glUseProgram(self.ID)
         
     # utility uniform functions

@@ -1,6 +1,8 @@
 from OpenGL.GL import *
 from PIL import Image
 import numpy as np
+import os
+import ctypes
 
 class Loader:
     vertices_list = []    
@@ -17,6 +19,9 @@ class Loader:
         self.program = nprogram
 
     def load_model_from_file(self, filename):
+        # Convert relative path to absolute path based on this script's location
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        filename = os.path.join(script_dir, filename)
    
         objects = {}
         vertices = []
@@ -64,6 +69,10 @@ class Loader:
 
 
     def load_texture_from_file(self, texture_id, img_textura):
+        # Convert relative path to absolute path based on this script's location
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        img_textura = os.path.join(script_dir, img_textura)
+        
         print(texture_id)
         glBindTexture(GL_TEXTURE_2D, texture_id)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
