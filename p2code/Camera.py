@@ -8,8 +8,8 @@ class Camera:
         self.largura = largura
         self.altura = altura
 
-        self.pos   = glm.vec3(0.0, 0.0, 3.0)
-        self.front = glm.vec3(0.0, 0.0, -1.0)
+        self.pos   = glm.vec3(-3.0, 0.8, -20.0)
+        self.front = glm.vec3(1.0, 0.0, 0.0)
         self.up    = glm.vec3(0.0, 1.0, 0.0)
 
         self.yaw   = -90.0
@@ -26,7 +26,7 @@ class Camera:
         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
             glfw.set_window_should_close(window, True)
 
-        cameraSpeed = 10 * self.deltaTime
+        cameraSpeed = 20 * self.deltaTime
 
         if key == glfw.KEY_W and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos += cameraSpeed * self.front
@@ -78,4 +78,4 @@ class Camera:
         return np.array(glm.lookAt(self.pos, self.pos + self.front, self.up))
 
     def get_projection(self):
-        return np.array(glm.perspective(glm.radians(self.fov), self.largura / self.altura, 0.1, 100.0))
+        return np.array(glm.perspective(glm.radians(self.fov), self.largura / self.altura, 0.1, 200.0))
