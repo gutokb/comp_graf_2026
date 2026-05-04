@@ -4,6 +4,9 @@ import numpy as np
 
 
 class Camera:
+    # Limite de altura: chão está em Y = -0.5, altura mínima de câmera é 1.6 (altura de uma pessoa)
+    MIN_HEIGHT = 1.55
+    
     def __init__(self, largura, altura):
         self.largura = largura
         self.altura = altura
@@ -22,6 +25,11 @@ class Camera:
         self.deltaTime  = 0.0
         self.lastFrame  = 0.0
 
+    def camera_height(self):
+        #Limita a câmera ao chão, impedindo que desça abaixo da altura mínima
+        if self.pos.y < self.MIN_HEIGHT:
+            self.pos.y = self.MIN_HEIGHT
+
     def key_event(self, window, key, scancode, action, mods):
         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
             glfw.set_window_should_close(window, True)
@@ -30,15 +38,19 @@ class Camera:
 
         if key == glfw.KEY_W and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos += cameraSpeed * self.front
+            self.camera_height()
 
         if key == glfw.KEY_S and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos -= cameraSpeed * self.front
+            self.camera_height()
 
         if key == glfw.KEY_A and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos -= glm.normalize(glm.cross(self.front, self.up)) * cameraSpeed
+            self.camera_height()
 
         if key == glfw.KEY_D and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos += glm.normalize(glm.cross(self.front, self.up)) * cameraSpeed
+            self.camera_height()
 
     def mouse_callback(self, window, xpos, ypos):
         if self.firstMouse:
