@@ -22,31 +22,38 @@ glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
 loader = Loader.Loader(program)
 bunker = Object.Object(loader, 'objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'], program)
-bunker.setmodel(0.0, 0, 0, 1, 0, 0, -20, 2.5, 2.5, 2.5)
+bunker.set_model(0.0, 0, 0, 1, 0, 0, -20, 2.5, 2.5, 2.5)
 
 botao = Object.Object(loader, 'objetos/botao/botao.obj', ['objetos/botao/botao.png'], program)
-botao.setmodel(0.0, 0, 0, 1, 3.4, 0.56, -20.3, 0.006, 0.006, 0.006)
+botao.set_model(0.0, 0, 0, 1, 3.4, 0.56, -20.3, 0.006, 0.006, 0.006)
 
 mesa = Object.Object(loader, 'objetos/mesa/Table.obj', ['objetos/mesa/Table_Mt.png'], program)
-mesa.setmodel(0.0, 0, 0, 1, 3.3, 0, -20, 0.008, 0.008, 0.008)
+mesa.set_model(0.0, 0, 0, 1, 3.3, 0, -20, 0.008, 0.008, 0.008)
 
 cadeira = Object.Object(loader, 'objetos/cadeira/cadeira.obj', ['objetos/cadeira/cadeira.png'], program)
-cadeira.setmodel(90.0, 0, 1, 0, 2.6, -0.5, -20, 0.014, 0.014, 0.014)
+cadeira.set_model(90.0, 0, 1, 0, 2.6, -0.5, -20, 0.014, 0.014, 0.014)
 
 sacodormir = Object.Object(loader, 'objetos/sleepingbag/Sleeping_bag.obj', ['objetos/sleepingbag/sleepbag.png'], program)
-sacodormir.setmodel(90.0, 0, 1, 0, -1.75, 0, -23, 0.014, 0.014, 0.014)
+sacodormir.set_model(90.0, 0, 1, 0, -1.75, 0, -23, 0.014, 0.014, 0.014)
 
 cacto = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
-cacto.setmodel(0.0, 0, 0, 1, 12, -0.5, -14, 0.3, 0.3, 0.3)
+cacto.set_model(0.0, 0, 0, 1, 12, -0.5, -14, 0.3, 0.3, 0.3)
 
 bomba = Object.Object(loader, 'objetos/bomba/Nuclear_Bomb.obj', ['objetos/bomba/Nuclear_Bomb.png'], program)
-bomba.setmodel(90.0, 1, 0, 0, 45, 20.0, -23, 0.01, 0.01, 0.01)
+bomba.set_model(90.0, 1, 0, 0, 45, 20.0, -23, 0.01, 0.01, 0.01)
 
 explosao = Object.Object(loader, 'objetos/explosao/Explosion.obj', ['objetos/explosao/Explosion.png'], program)
-explosao.setmodel(0.0, 0, 0, 1, 40, 0, -23, 0.2, 0.2, 0.2)
+explosao.set_model(0.0, 0, 0, 1, 40, 0, -23, 0.2, 0.2, 0.2)
 
 sky = Object.Object(loader, 'objetos/skybox/skybox.obj', ['objetos/skybox/skybox2.webp'], program)
-sky.setmodel(0.0, 0, 0, 0, 0, 0, 0, 100.0, 100.0,100.0)
+sky.set_model(0.0, 0, 0, 0, 0, 6.0, 0, 100.0, 100.0,100.0)
+
+plane = Object.Object(loader, 'objetos/plane/plane.obj', ['objetos/plane/plane.png'], program)
+plane.set_model(0.0, 0, 0, 0, 45, 22.0, -23, 1.0, 1.0,1.0)
+
+floor = Object.Object(loader, 'objetos/floor/floor.obj', ['objetos/floor/floor.jpg'], program)
+floor.set_model(0.0, 0, 0, 0, 0, -0.51, 0, 100.0, 0,100.0)
+
 
 loader.upload()
 
@@ -79,15 +86,18 @@ while not glfw.window_should_close(window):
     glUniformMatrix4fv(loc_projection, 1, GL_TRUE, camera.get_projection())
 
     # COISAS ESTAO COM ALTURA Y -0,5 PQ TAVA FLUTUANDO NO CHAO, SE ARRUMAR TROCAR
-    bunker.draw(np.eye(4, 4))
-    botao.draw( np.eye(4, 4))
-    mesa.draw( np.eye(4, 4))
-    cadeira.draw( np.eye(4, 4))
-    sacodormir.draw( np.eye(4, 4))
-    cacto.draw( np.eye(4, 4))
-    bomba.draw( np.eye(4, 4))
-    explosao.draw( np.eye(4, 4))
-    sky.draw( np.eye(4, 4))
+    bunker.draw()
+    botao.draw( )
+    mesa.draw( )
+    cadeira.draw( )
+    sacodormir.draw( )
+    cacto.draw( )
+    bomba.draw( )
+    explosao.draw( )
+    sky.draw( )
+    plane.draw()
+    floor.draw()
+
     glfw.swap_buffers(window)
 
 glfw.terminate()
