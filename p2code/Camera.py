@@ -8,7 +8,7 @@ class Camera:
         self.largura = largura
         self.altura = altura
 
-        self.pos   = glm.vec3(-3.0, 0.8, -20.0)
+        self.pos   = glm.vec3(0.0, 10.0, 0.0)
         self.front = glm.vec3(1.0, 0.0, 0.0)
         self.up    = glm.vec3(0.0, 1.0, 0.0)
 
