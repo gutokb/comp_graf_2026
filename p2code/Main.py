@@ -21,32 +21,32 @@ glfw.set_scroll_callback(window, camera.scroll_callback)
 glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
 loader = Loader.Loader(program)
-caixastart, caixaqt, caixatexture = loader.load_obj_and_texture('objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'])
-caixa = Object.Object(caixastart, caixaqt, caixatexture, program)
+bunker = Object.Object(loader, 'objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'], program)
+bunker.setmodel(0.0, 0, 0, 1, 0, 0, -20, 2.5, 2.5, 2.5)
 
-botaostart, botaoqt, bototexture = loader.load_obj_and_texture('objetos/botao/botao.obj', ['objetos/botao/botao.png'])
-botao = Object.Object(botaostart, botaoqt, bototexture, program)
+botao = Object.Object(loader, 'objetos/botao/botao.obj', ['objetos/botao/botao.png'], program)
+botao.setmodel(0.0, 0, 0, 1, 3.4, 0.56, -20.3, 0.006, 0.006, 0.006)
 
-mesastart, mesaqt, mesatexture = loader.load_obj_and_texture('objetos/mesa/Table.obj', ['objetos/mesa/Table_Mt.png'])
-mesa = Object.Object(mesastart, mesaqt, mesatexture, program)
+mesa = Object.Object(loader, 'objetos/mesa/Table.obj', ['objetos/mesa/Table_Mt.png'], program)
+mesa.setmodel(0.0, 0, 0, 1, 3.3, 0, -20, 0.008, 0.008, 0.008)
 
-cadeirastart, cadeiraqt, cadeiratexture = loader.load_obj_and_texture('objetos/cadeira/cadeira.obj', ['objetos/cadeira/cadeira.png'])
-cadeira = Object.Object(cadeirastart, cadeiraqt, cadeiratexture, program)
+cadeira = Object.Object(loader, 'objetos/cadeira/cadeira.obj', ['objetos/cadeira/cadeira.png'], program)
+cadeira.setmodel(90.0, 0, 1, 0, 2.6, -0.5, -20, 0.014, 0.014, 0.014)
 
-sacodormirstart, sacodormirqt, sacodormirtexture = loader.load_obj_and_texture('objetos/sleepingbag/Sleeping_bag.obj', ['objetos/sleepingbag/sleepbag.png'])
-sacodormir = Object.Object(sacodormirstart, sacodormirqt, sacodormirtexture, program)
+sacodormir = Object.Object(loader, 'objetos/sleepingbag/Sleeping_bag.obj', ['objetos/sleepingbag/sleepbag.png'], program)
+sacodormir.setmodel(90.0, 0, 1, 0, -1.75, 0, -23, 0.014, 0.014, 0.014)
 
-cactostart, cactoqt, cactotexture = loader.load_obj_and_texture('objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'])
-cacto = Object.Object(cactostart, cactoqt, cactotexture, program)
+cacto = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
+cacto.setmodel(0.0, 0, 0, 1, 12, -0.5, -14, 0.3, 0.3, 0.3)
 
-bombastart, bombaqt, bombatexture = loader.load_obj_and_texture('objetos/bomba/Nuclear_Bomb.obj', ['objetos/bomba/Nuclear_Bomb.png'])
-bomba = Object.Object(bombastart, bombaqt, bombatexture, program)
+bomba = Object.Object(loader, 'objetos/bomba/Nuclear_Bomb.obj', ['objetos/bomba/Nuclear_Bomb.png'], program)
+bomba.setmodel(90.0, 1, 0, 0, 45, 20.0, -23, 0.01, 0.01, 0.01)
 
-explosaostart, explosaqt, explosatexture = loader.load_obj_and_texture('objetos/explosao/Explosion.obj', ['objetos/explosao/Explosion.png'])
-explosao = Object.Object(explosaostart, explosaqt, explosatexture, program)
+explosao = Object.Object(loader, 'objetos/explosao/Explosion.obj', ['objetos/explosao/Explosion.png'], program)
+explosao.setmodel(0.0, 0, 0, 1, 40, 0, -23, 0.2, 0.2, 0.2)
 
-skystart, skyqt, skytexture = loader.load_obj_and_texture('objetos/skybox/skybox.obj', ['objetos/skybox/skybox2.webp'])
-sky = Object.Object(skystart, skyqt, skytexture, program)
+sky = Object.Object(loader, 'objetos/skybox/skybox.obj', ['objetos/skybox/skybox2.webp'], program)
+sky.setmodel(0.0, 0, 0, 0, 0, 0, 0, 100.0, 100.0,100.0)
 
 loader.upload()
 
@@ -79,15 +79,15 @@ while not glfw.window_should_close(window):
     glUniformMatrix4fv(loc_projection, 1, GL_TRUE, camera.get_projection())
 
     # COISAS ESTAO COM ALTURA Y -0,5 PQ TAVA FLUTUANDO NO CHAO, SE ARRUMAR TROCAR
-    caixa.draw(0.0, 0, 0, 1, 0, 0, -20, 2.5, 2.5, 2.5, np.eye(4, 4))
-    botao.draw(0.0, 0, 0, 1, 3.4, 0.56, -20.3, 0.006, 0.006, 0.006, np.eye(4, 4))
-    mesa.draw(0.0, 0, 0, 1, 3.3, 0, -20, 0.008, 0.008, 0.008, np.eye(4, 4))
-    cadeira.draw(90.0, 0, 1, 0, 2.6, -0.5, -20, 0.014, 0.014, 0.014, np.eye(4, 4))
-    sacodormir.draw(90.0, 0, 1, 0, -1.75, 0, -23, 0.014, 0.014, 0.014, np.eye(4, 4))
-    cacto.draw(0.0, 0, 0, 1, 12, -0.5, -14, 0.3, 0.3, 0.3, np.eye(4, 4))
-    bomba.draw(90.0, 1, 0, 0, 45, 20.0, -23, 0.01, 0.01, 0.01, np.eye(4, 4))
-    explosao.draw(0.0, 0, 0, 1, 40, 0, -23, 0.2, 0.2, 0.2, np.eye(4, 4))
-    sky.draw(0.0, 0, 0, 0, 0, 0, 0, 100.0, 100.0,100.0, np.eye(4, 4))
+    bunker.draw(np.eye(4, 4))
+    botao.draw( np.eye(4, 4))
+    mesa.draw( np.eye(4, 4))
+    cadeira.draw( np.eye(4, 4))
+    sacodormir.draw( np.eye(4, 4))
+    cacto.draw( np.eye(4, 4))
+    bomba.draw( np.eye(4, 4))
+    explosao.draw( np.eye(4, 4))
+    sky.draw( np.eye(4, 4))
     glfw.swap_buffers(window)
 
 glfw.terminate()
