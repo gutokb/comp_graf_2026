@@ -45,6 +45,9 @@ bomba = Object.Object(bombastart, bombaqt, bombatexture, program)
 explosaostart, explosaqt, explosatexture = loader.load_obj_and_texture('objetos/explosao/Explosion.obj', ['objetos/explosao/Explosion.png'])
 explosao = Object.Object(explosaostart, explosaqt, explosatexture, program)
 
+skystart, skyqt, skytexture = loader.load_obj_and_texture('objetos/skybox/skybox.obj', ['objetos/skybox/skybox2.webp'])
+sky = Object.Object(skystart, skyqt, skytexture, program)
+
 loader.upload()
 
 glEnable(GL_DEPTH_TEST)
@@ -80,10 +83,11 @@ while not glfw.window_should_close(window):
     botao.draw(0.0, 0, 0, 1, 3.4, 0.56, -20.3, 0.006, 0.006, 0.006, np.eye(4, 4))
     mesa.draw(0.0, 0, 0, 1, 3.3, 0, -20, 0.008, 0.008, 0.008, np.eye(4, 4))
     cadeira.draw(90.0, 0, 1, 0, 2.6, -0.5, -20, 0.014, 0.014, 0.014, np.eye(4, 4))
-    sacodormir.draw(90.0, 0, 1, 0, -1.75, -0.5, -23, 0.014, 0.014, 0.014, np.eye(4, 4))
+    sacodormir.draw(90.0, 0, 1, 0, -1.75, 0, -23, 0.014, 0.014, 0.014, np.eye(4, 4))
     cacto.draw(0.0, 0, 0, 1, 12, -0.5, -14, 0.3, 0.3, 0.3, np.eye(4, 4))
     bomba.draw(90.0, 1, 0, 0, 45, 20.0, -23, 0.01, 0.01, 0.01, np.eye(4, 4))
     explosao.draw(0.0, 0, 0, 1, 40, 0, -23, 0.2, 0.2, 0.2, np.eye(4, 4))
+    sky.draw(0.0, 0, 0, 0, 0, 0, 0, 100.0, 100.0,100.0, np.eye(4, 4))
     glfw.swap_buffers(window)
 
 glfw.terminate()
