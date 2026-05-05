@@ -68,6 +68,8 @@ cactos = []
 for i in range(40):
     x = random.uniform(-90.0, 90.0)
     z = random.uniform(-90.0, 90.0)
+    while(abs(z) < 10):
+        z = random.uniform(-90.0, 90.0)
     s_c = random.uniform(0.25, 0.6)
     cacto = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
     cacto.set_model(0.0, 0, 0, 1, x, -0.5, z, s_c, s_c, s_c)
@@ -77,6 +79,8 @@ tumbleweed = []
 for i in range(20):
     x = random.uniform(-90.0, 90.0)
     z = random.uniform(-90.0, 90.0)
+    while(abs(z) < 10):
+        z = random.uniform(-90.0, 90.0)
     s_t = random.uniform(0.002, 0.008)
     tumbleweed.append(Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['objetos/tumbleweed/Tumbleweed.png'], program))
     tumbleweed[-1].set_model(0.0, 0, 0, 1, x, -0.5, z, s_t, s_t, s_t)
@@ -85,6 +89,8 @@ pedra = []
 for i in range(50):
     x = random.uniform(-90.0, 90.0)
     z = random.uniform(-90.0, 90.0)
+    while(abs(z) < 10):
+        z = random.uniform(-90.0, 90.0)
     s_p = random.uniform(0.009, 0.05)
     pedra.append(Object.Object(loader, 'objetos/pedra/Desert_Rock_Base.obj', ['objetos/pedra/DefaultMaterial.png'], program))
     pedra[-1].set_model(0.0, 0, 0, 1, x, -0.5, z, s_p, s_p, s_p)
