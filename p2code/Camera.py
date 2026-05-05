@@ -6,6 +6,11 @@ import numpy as np
 class Camera:
     # Limite de altura: chão está em Y = -0.5, altura mínima de câmera é 1.6 (altura de uma pessoa)
     MIN_HEIGHT = 1.55
+    MAX_HEIGHT = 50
+    MIN_WIDTH = -50
+    MAX_WIDTH = 50
+    MIN_DEPTH = -50
+    MAX_DEPTH = 50
     
     def __init__(self, largura, altura):
         self.largura = largura
@@ -25,10 +30,14 @@ class Camera:
         self.deltaTime  = 0.0
         self.lastFrame  = 0.0
 
-    def camera_height(self):
-        #Limita a câmera ao chão, impedindo que desça abaixo da altura mínima
-        if self.pos.y < self.MIN_HEIGHT:
-            self.pos.y = self.MIN_HEIGHT
+
+    def camera_cap(self):
+        # Height (Y)
+        self.pos.y = max(self.MIN_HEIGHT, min(self.MAX_HEIGHT, self.pos.y))
+        # Width (X)
+        self.pos.x = max(self.MIN_WIDTH, min(self.MAX_WIDTH, self.pos.x))
+        # Depth (Z)
+        self.pos.z = max(self.MIN_DEPTH, min(self.MAX_DEPTH, self.pos.z))
 
     def key_event(self, window, key, scancode, action, mods):
         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
@@ -38,19 +47,19 @@ class Camera:
 
         if key == glfw.KEY_W and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos += cameraSpeed * self.front
-            self.camera_height()
+            self.camera_cap()  # was camera_height()
 
         if key == glfw.KEY_S and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos -= cameraSpeed * self.front
-            self.camera_height()
+            self.camera_cap()
 
         if key == glfw.KEY_A and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos -= glm.normalize(glm.cross(self.front, self.up)) * cameraSpeed
-            self.camera_height()
+            self.camera_cap()
 
         if key == glfw.KEY_D and (action == glfw.PRESS or action == glfw.REPEAT):
             self.pos += glm.normalize(glm.cross(self.front, self.up)) * cameraSpeed
-            self.camera_height()
+            self.camera_cap()
 
     def mouse_callback(self, window, xpos, ypos):
         if self.firstMouse:

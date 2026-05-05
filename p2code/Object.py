@@ -4,6 +4,7 @@ import glm
 
 class Object:
     def __init__(self, loader, obj, texture, program):
+        self.loader = loader
         self.start, self.qt, self.textureId = loader.load_obj_and_texture(obj, texture)
         self.program = program
         self.mat_model = np.array(glm.mat4(1.0))
@@ -79,3 +80,18 @@ class Object:
 
         glBindTexture(GL_TEXTURE_2D, self.textureId)
         glDrawArrays(GL_TRIANGLES, self.start, self.qt)
+
+    def get_position(self):
+        raw = self.loader.vertices_list[self.start]
+        vertex = glm.vec4(float(raw[0]), float(raw[1]), float(raw[2]), 1.0)
+
+        mat_model = glm.mat4(*self.mat_model.flatten())
+        
+        # recompute fresh instead of using cached mat_transform
+        if self.transformations:
+            mat_transform = glm.mat4(*self._combined_transform().flatten())
+        else:
+            mat_transform = glm.mat4(1.0)
+
+        world_pos = mat_transform @ mat_model @ vertex
+        return glm.vec3(world_pos)
