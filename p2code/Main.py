@@ -92,8 +92,12 @@ for i in range(50):
     while(abs(z) < 10):
         z = random.uniform(-90.0, 90.0)
     s_p = random.uniform(0.009, 0.05)
-    pedra.append(Object.Object(loader, 'objetos/pedra/Desert_Rock_Base.obj', ['objetos/pedra/DefaultMaterial.png'], program))
-    pedra[-1].set_model(0.0, 0, 0, 1, x, -0.5, z, s_p, s_p, s_p)
+    pedra_t = [x, z]
+    pedra = [s_p, pedra_t]
+    pedra.append(pedra)
+pedratrue = Object.Object(loader, 'objetos/pedra/Desert_Rock_Base.obj', ['objetos/pedra/DefaultMaterial.png'], program)
+pedratrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1, 1, 1)
+pedratrue.set_transformations(['s', 't'])
 
 bomba = Object.Object(loader, 'objetos/bomba/Nuclear_Bomb.obj', ['objetos/bomba/Nuclear_Bomb.png'], program)
 bomba.set_model(90.0, 0, 1, 0, 0, 20.0, 0.2, 0.004, 0.004, 0.004)
@@ -237,7 +241,9 @@ while not glfw.window_should_close(window):
         t.draw()
     
     for p in pedra:
-        p.draw()
+        pedratrue.set_parameters(0,[p[0], p[0], p[0]])
+        pedratrue.set_parameters(1,[p[1][0], 0.0, p[1][1]])
+        pedratrue.draw()
 
     plane.set_parameters(0,plane_t)
     plane.draw()
