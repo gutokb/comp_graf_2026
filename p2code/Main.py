@@ -71,9 +71,12 @@ for i in range(40):
     while(abs(z) < 10):
         z = random.uniform(-90.0, 90.0)
     s_c = random.uniform(0.25, 0.6)
-    cacto = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
-    cacto.set_model(0.0, 0, 0, 1, x, -0.5, z, s_c, s_c, s_c)
+    cacto_t = [x,z]
+    cacto = [s_c, cacto_t]
     cactos.append(cacto)
+cactotrue = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
+cactotrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1.0, 1.0, 1.0)
+cactotrue.set_transformations(['s','t'])
 
 tumbleweed = []
 for i in range(20):
@@ -82,8 +85,12 @@ for i in range(20):
     while(abs(z) < 10):
         z = random.uniform(-90.0, 90.0)
     s_t = random.uniform(0.002, 0.008)
-    tumbleweed.append(Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['objetos/tumbleweed/Tumbleweed.png'], program))
-    tumbleweed[-1].set_model(0.0, 0, 0, 1, x, -0.5, z, s_t, s_t, s_t)
+    tumble_t = [x,z]
+    tumble = [s_t, tumble_t]
+    tumbleweed.append(tumble)
+tumbleweedtrue =Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['objetos/tumbleweed/Tumbleweed.png'], program)
+tumbleweedtrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1.0, 1.0, 1.0)
+tumbleweedtrue.set_transformations(['s','t'])
     
 pedra = []
 for i in range(50):
@@ -231,10 +238,14 @@ while not glfw.window_should_close(window):
     sacodormir.draw()
     
     for cacto in cactos:
-        cacto.draw()
+        cactotrue.set_parameters(0,[cacto[0],cacto[0],cacto[0]])
+        cactotrue.set_parameters(1,[cacto[1][0],0.0,cacto[1][1]])
+        cactotrue.draw()
         
     for t in tumbleweed:
-        t.draw()
+        tumbleweedtrue.set_parameters(0,[t[0],t[0],t[0]])
+        tumbleweedtrue.set_parameters(1,[t[1][0],0.0,t[1][1]])
+        tumbleweedtrue.draw()
     
     for p in pedra:
         p.draw()
