@@ -41,6 +41,13 @@ explode_s = [0.0, 0.0, 0.0]
 
 rubble = [1.0, 1.0, 1.0]
 
+destroyed = [0.0, 0.0, 0.0]
+
+entulho = Object.Object(loader, 'objetos/entulho/entulho.obj', ['objetos/entulho/entulho.png'], program)
+entulho.set_model(0.0, 0, 0, 1, 0, 0, 0, 4.0, 4.0, 4.0)
+entulho.set_transformations(['s'])
+
+
 bunker = Object.Object(loader, 'objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'], program)
 bunker.set_model(0.0, 0, 0, 1, 0, 0, 0, 2.5, 2.5, 2.5)
 bunker.set_transformations(['s'])
@@ -129,7 +136,7 @@ polygonal_mode = False
 # wrap key_event to also handle polygonal mode toggle
 original_key_event = camera.key_event
 def key_event(window, key, scancode, action, mods):
-    global polygonal_mode, free, detonate, bomb_r1, bomb_s, bomb_t, explode_s, explode_t, rubble, angle_limit, collapse
+    global polygonal_mode, free, detonate, bomb_r1, bomb_s, bomb_t, explode_s, explode_t, rubble, angle_limit, collapse, destroyed
     original_key_event(window, key, scancode, action, mods)
 
     if key == glfw.KEY_SPACE and action == glfw.PRESS:
@@ -159,6 +166,7 @@ def key_event(window, key, scancode, action, mods):
                     explode_t[1] += 3.0
                 if explode_t[0] > -15 and explode_t[0] < 15:
                     rubble = [0.0, 0.0, 0.0]
+                    destroyed = [1.0, 1.0, 1.0]
 
         if (detonate == True) and (explode_s[0] < 1.5) and (collapse == False):
             explode_s[0] += 0.05
@@ -195,7 +203,12 @@ while not glfw.window_should_close(window):
     loc_projection = glGetUniformLocation(program, "projection")
     glUniformMatrix4fv(loc_projection, 1, GL_TRUE, camera.get_projection())
 
-    # COISAS ESTAO COM ALTURA Y -0,5 PQ TAVA FLUTUANDO NO CHAO, SE ARRUMAR TROCAR
+
+
+    entulho.set_parameters(0,destroyed)
+    entulho.draw()
+
+
     bunker.set_parameters(0,rubble)
     bunker.draw()
     
