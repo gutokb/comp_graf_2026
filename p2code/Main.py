@@ -3,6 +3,7 @@ import glfw
 from OpenGL.GL import *
 import OpenGL.GL.shaders
 import numpy as np
+import random
 import Loader
 import Object
 import Camera
@@ -56,8 +57,30 @@ sacodormir = Object.Object(loader, 'objetos/sleepingbag/Sleeping_bag.obj', ['obj
 sacodormir.set_model(90.0, 0, 1, 0, -1.75, -0.35, -3, 0.014, 0.014, 0.014)
 sacodormir.set_transformations(['s'])
 
-cacto = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
-cacto.set_model(0.0, 0, 0, 1, 12, -0.5, -14, 0.3, 0.3, 0.3)
+cactos = []
+for i in range(40):
+    x = random.uniform(-90.0, 90.0)
+    z = random.uniform(-90.0, 90.0)
+    s_c = random.uniform(0.25, 0.6)
+    cacto = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
+    cacto.set_model(0.0, 0, 0, 1, x, -0.5, z, s_c, s_c, s_c)
+    cactos.append(cacto)
+
+tumbleweed = []
+for i in range(20):
+    x = random.uniform(-90.0, 90.0)
+    z = random.uniform(-90.0, 90.0)
+    s_t = random.uniform(0.002, 0.008)
+    tumbleweed.append(Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['objetos/tumbleweed/Tumbleweed.png'], program))
+    tumbleweed[-1].set_model(0.0, 0, 0, 1, x, -0.5, z, s_t, s_t, s_t)
+    
+pedra = []
+for i in range(50):
+    x = random.uniform(-90.0, 90.0)
+    z = random.uniform(-90.0, 90.0)
+    s_p = random.uniform(0.009, 0.05)
+    pedra.append(Object.Object(loader, 'objetos/pedra/Desert_Rock_Base.obj', ['objetos/pedra/DefaultMaterial.png'], program))
+    pedra[-1].set_model(0.0, 0, 0, 1, x, -0.5, z, s_p, s_p, s_p)
 
 bomba = Object.Object(loader, 'objetos/bomba/Nuclear_Bomb.obj', ['objetos/bomba/Nuclear_Bomb.png'], program)
 bomba.set_model(90.0, 0, 1, 0, 0, 20.0, 0.2, 0.004, 0.004, 0.004)
@@ -69,7 +92,7 @@ explosao.set_transformations(['s','t'])
 
 arma = Object.Object(loader, 'objetos/arma/AK-47.obj', ['objetos/arma/Material_44.png'], program)
 arma.set_model(90.0, -1, 0.0, 0, 3.2, 0.885, -0.7, 0.006, 0.006, 0.006)
-arma.set_transformations(['s'])
+arma.set_transformations(['s', 't','r', 't'])
 
 comida1 = Object.Object(loader, 'objetos/comida/Canned_Food.obj', ['objetos/comida/Can3.png'], program)
 comida1.set_model(0.0, 1, 0.0, 0, 3.3, 0.885, 1.0, 0.015, 0.015, 0.015)
@@ -188,9 +211,14 @@ while not glfw.window_should_close(window):
     sacodormir.set_parameters(0,rubble)
     sacodormir.draw()
     
-
-
-    cacto.draw()
+    for cacto in cactos:
+        cacto.draw()
+        
+    for t in tumbleweed:
+        t.draw()
+    
+    for p in pedra:
+        p.draw()
 
     plane.set_parameters(0,plane_t)
     plane.draw()
@@ -205,6 +233,9 @@ while not glfw.window_should_close(window):
     explosao.draw()
 
     arma.set_parameters(0,rubble)
+    arma.set_parameters(1, [-3.2, -0.885, 0.7])
+    arma.set_parameters(2, [45.0, 0.0, -1.0, 0.0])
+    arma.set_parameters(3, [3.2, 0.885, -0.7])
     arma.draw()
     
 
