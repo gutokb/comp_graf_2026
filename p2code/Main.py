@@ -79,7 +79,7 @@ cactotrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1.0, 1.0, 1.0)
 cactotrue.set_transformations(['s','t'])
 
 tumbleweed = []
-for i in range(20):
+for i in range(30):
     x = random.uniform(-90.0, 90.0)
     z = random.uniform(-90.0, 90.0)
     while(abs(z) < 10):
@@ -243,12 +243,12 @@ while not glfw.window_should_close(window):
     
     for cacto in cactos:
         cactotrue.set_parameters(0,[cacto[0],cacto[0],cacto[0]])
-        cactotrue.set_parameters(1,[cacto[1][0],0.0,cacto[1][1]])
+        cactotrue.set_parameters(1,[cacto[1][0],-0.5,cacto[1][1]])
         cactotrue.draw()
         
     for t in tumbleweed:
         tumbleweedtrue.set_parameters(0,[t[0],t[0],t[0]])
-        tumbleweedtrue.set_parameters(1,[t[1][0],0.0,t[1][1]])
+        tumbleweedtrue.set_parameters(1,[t[1][0],-0.5,t[1][1]])
         tumbleweedtrue.draw()
     
     for p in pedras:
