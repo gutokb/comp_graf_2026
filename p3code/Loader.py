@@ -142,39 +142,33 @@ class Loader:
         return verticeInicial, verticeFinal - verticeInicial, self.numberTextures-1
     
     def upload(self):
-        buffer_VBO = glGenBuffers(3)          # was 2, now 3
+        self.vao = glGenVertexArrays(1)
+        glBindVertexArray(self.vao)
 
-        # --- positions (unchanged) ---
+        buffer_VBO = glGenBuffers(3)
+
+        # --- positions (location 0) ---
         vertices = np.zeros(len(self.vertices_list), [("position", np.float32, 3)])
         vertices['position'] = self.vertices_list
         glBindBuffer(GL_ARRAY_BUFFER, buffer_VBO[0])
         glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
-        stride = vertices.strides[0]
-        loc_vertices = glGetAttribLocation(self.program, "position")
-        glEnableVertexAttribArray(loc_vertices)
-        glVertexAttribPointer(loc_vertices, 3, GL_FLOAT, False, stride, ctypes.c_void_p(0))
+        glEnableVertexAttribArray(0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, False, vertices.strides[0], ctypes.c_void_p(0))
 
-        # --- texture coords (unchanged) ---
+        # --- texture coords (location 1) ---
         textures = np.zeros(len(self.textures_coord_list), [("position", np.float32, 2)])
         textures['position'] = self.textures_coord_list
         glBindBuffer(GL_ARRAY_BUFFER, buffer_VBO[1])
         glBufferData(GL_ARRAY_BUFFER, textures.nbytes, textures, GL_STATIC_DRAW)
-        stride = textures.strides[0]
-        loc_texture_coord = glGetAttribLocation(self.program, "texture_coord")
-        glEnableVertexAttribArray(loc_texture_coord)
-        glVertexAttribPointer(loc_texture_coord, 2, GL_FLOAT, False, stride, ctypes.c_void_p(0))
+        glEnableVertexAttribArray(1)
+        glVertexAttribPointer(1, 2, GL_FLOAT, False, textures.strides[0], ctypes.c_void_p(0))
 
-        # --- normals (new) ---
+        # --- normals (location 2) ---
         normals = np.zeros(len(self.normals_list), [("position", np.float32, 3)])
         normals['position'] = self.normals_list
         glBindBuffer(GL_ARRAY_BUFFER, buffer_VBO[2])
         glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, GL_STATIC_DRAW)
-        stride = normals.strides[0]
-        loc_normal = glGetAttribLocation(self.program, "normal")
-        glEnableVertexAttribArray(loc_normal)
-        glVertexAttribPointer(loc_normal, 3, GL_FLOAT, False, stride, ctypes.c_void_p(0))
+        glEnableVertexAttribArray(2)
+        glVertexAttribPointer(2, 3, GL_FLOAT, False, normals.strides[0], ctypes.c_void_p(0))
 
-        loc_normal = glGetAttribLocation(self.program, "normal")
-        print("aiaiai")
-        print("normal attrib location:", loc_normal)
-        print("normals_list length:", len(self.normals_list))
+        glBindVertexArray(0)

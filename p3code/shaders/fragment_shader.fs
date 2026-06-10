@@ -31,6 +31,9 @@ uniform int        num_spot_lights;
 uniform PointLight point_lights[MAX_POINT_LIGHTS];
 uniform SpotLight  spot_lights[MAX_SPOT_LIGHTS];
 
+uniform sampler2D    spot_shadow_maps[MAX_SPOT_LIGHTS];
+uniform mat4         spot_light_space_matrices[MAX_SPOT_LIGHTS];
+
 varying vec2 out_texture;
 varying vec3 out_normal;
 varying vec3 out_frag_pos;
@@ -41,17 +44,59 @@ float attenuation(float dist, float constant, float linear, float quadratic) {
     return 1.0 / (constant + linear * dist + quadratic * (dist * dist));
 }
 
-vec3 calc_point_light(PointLight light, vec3 norm, vec3 view_dir) {
-    vec3  light_dir  = normalize(light.pos - out_frag_pos);
-    float diff       = max(dot(norm, light_dir), 0.0);
-    vec3  reflect_dir = reflect(-light_dir, norm);
-    float spec       = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
-    float att        = attenuation(length(light.pos - out_frag_pos),
-                                   light.constant, light.linear, light.quadratic);
-    return light.color * (diff + spec) * att;
+uniform samplerCube shadow_cubemaps[MAX_POINT_LIGHTS];
+uniform float        far_plane;
+
+float sample_point_shadow(int i, vec3 frag_to_light) {
+    if (i == 0) return texture(shadow_cubemaps[0], frag_to_light).r;
+    if (i == 1) return texture(shadow_cubemaps[1], frag_to_light).r;
+    if (i == 2) return texture(shadow_cubemaps[2], frag_to_light).r;
+    return 1.0;
 }
 
-vec3 calc_spot_light(SpotLight light, vec3 norm, vec3 view_dir) {
+float sample_spot_shadow(int i, vec2 coords) {
+    if (i == 0) return texture(spot_shadow_maps[0], coords).r;
+    if (i == 1) return texture(spot_shadow_maps[1], coords).r;
+    if (i == 2) return texture(spot_shadow_maps[2], coords).r;
+    return 1.0;
+}
+
+float calc_point_shadow(int i, vec3 frag_pos, vec3 light_pos){
+    vec3  frag_to_light = frag_pos - light_pos;
+    float closest_depth = sample_point_shadow(i, frag_to_light) * far_plane;
+    float current_depth = length(frag_to_light);
+    float bias          = 0.05;
+    return current_depth - bias > closest_depth ? 1.0 : 0.0;
+}
+
+
+
+vec3 calc_point_light(int i, PointLight light, vec3 norm, vec3 view_dir){
+    vec3  light_dir   = normalize(light.pos - out_frag_pos);
+    float diff        = max(dot(norm, light_dir), 0.0);
+    vec3  reflect_dir = reflect(-light_dir, norm);
+    float spec        = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
+    float att         = attenuation(length(light.pos - out_frag_pos),
+                                    light.constant, light.linear, light.quadratic);
+    float shadow      = calc_point_shadow(i, out_frag_pos, light.pos);
+    return light.color * (diff + spec) * att * (1.0 - shadow);
+}
+
+float calc_spot_shadow(int i, vec3 frag_pos){
+    vec4  frag_in_light = spot_light_space_matrices[i] * vec4(frag_pos, 1.0);
+    vec3  proj_coords   = frag_in_light.xyz / frag_in_light.w;
+    proj_coords         = proj_coords * 0.5 + 0.5;
+
+    if(proj_coords.z > 1.0) return 0.0;
+
+    float closest_depth = sample_spot_shadow(i, proj_coords.xy);
+    float current_depth = proj_coords.z;
+    float bias          = 0.005;
+    return current_depth - bias > closest_depth ? 1.0 : 0.0;
+}
+
+
+vec3 calc_spot_light(int i, SpotLight light, vec3 norm, vec3 view_dir){
     vec3  light_dir   = normalize(light.pos - out_frag_pos);
     float theta       = dot(light_dir, normalize(-light.direction));
     float epsilon     = light.cut_off - light.outer_cut_off;
@@ -62,7 +107,8 @@ vec3 calc_spot_light(SpotLight light, vec3 norm, vec3 view_dir) {
     float spec        = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
     float att         = attenuation(length(light.pos - out_frag_pos),
                                     light.constant, light.linear, light.quadratic);
-    return light.color * (diff + spec) * att * intensity;
+    float shadow      = calc_spot_shadow(i, out_frag_pos);
+    return light.color * (diff + spec) * att * intensity * (1.0 - shadow);
 }
 
 void main(){
@@ -72,10 +118,10 @@ void main(){
     vec3 result = ambient_color * ambient_strength;
 
     for (int i = 0; i < num_point_lights; i++)
-        result += calc_point_light(point_lights[i], norm, view_dir);
+        result += calc_point_light(i,point_lights[i], norm, view_dir);
 
     for (int i = 0; i < num_spot_lights; i++)
-        result += calc_spot_light(spot_lights[i], norm, view_dir);
+        result += calc_spot_light(i,spot_lights[i], norm, view_dir);
 
     vec4 tex = texture2D(imagem, out_texture);
     gl_FragColor = tex * vec4(result, 1.0);

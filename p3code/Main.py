@@ -8,6 +8,7 @@ import random
 import Loader
 import Object
 import Camera
+from ShadowMap import CubeShadowMap, SpotShadowMap
 
 altura = 700
 largura = 700
@@ -57,9 +58,9 @@ rubble = [1.0, 1.0, 1.0]
 
 destroyed = [0.0, 0.0, 0.0]
 
-entulho = Object.Object(loader, 'objetos/entulho/entulho.obj', ['objetos/entulho/entulho.png'], program)
+'''entulho = Object.Object(loader, 'objetos/entulho/entulho.obj', ['objetos/entulho/entulho.png'], program)
 entulho.set_model(0.0, 0, 0, 1, 0, 0, 0, 4.0, 4.0, 4.0)
-entulho.set_transformations(['s'])
+entulho.set_transformations(['s'])'''
 
 
 bunker = Object.Object(loader, 'objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'], program)
@@ -160,6 +161,10 @@ floor.set_model(0.0, 0, 0, 0, 0, -0.51, 0, 100.0, 0,100.0)
 
 
 loader.upload()
+print("VAO ID:", loader.vao)
+print("vertices count:", len(loader.vertices_list))
+print("normals count:", len(loader.normals_list))
+print("textures count:", len(loader.textures_coord_list))
 
 glEnable(GL_DEPTH_TEST)
 polygonal_mode = False
@@ -218,11 +223,65 @@ def key_event(window, key, scancode, action, mods):
     
 glfw.set_key_callback(window, key_event)
 
+depth_program      = Setter.make_depth_program()
+spot_depth_program = Setter.make_spot_depth_program()
+
+print("depth_program ID:", depth_program)
+print("spot_depth_program ID:", spot_depth_program)
+print("main program ID:", program)
+
+far_plane          = 100.0
+
+point_shadow_maps = [CubeShadowMap(1024) for _ in range(len(manager._point_lights))]
+spot_shadow_maps  = [SpotShadowMap(1024) for _ in range(len(manager._spot_lights))]
+
+all_objects = [bunker, plane, floor, bomba, mesa]
 glfw.show_window(window)
 while not glfw.window_should_close(window):
-    camera.tick(glfw.get_time())
-    manager.upload((camera.pos.x, camera.pos.y, camera.pos.z))
-    glfw.poll_events()
+        # --- pass 1: point light cubemap depth ---
+    glUseProgram(depth_program)
+    for i, (pl, sm) in enumerate(zip(manager._point_lights, point_shadow_maps)):
+        matrices = sm.get_shadow_matrices(pl.pos, far_plane)
+        for j, mat in enumerate(matrices):
+            loc = glGetUniformLocation(depth_program, f"shadow_matrices[{j}]")
+            glUniformMatrix4fv(loc, 1, GL_FALSE, np.array(mat))
+        glUniform3f(glGetUniformLocation(depth_program, "light_pos"), *pl.pos)
+        glUniform1f(glGetUniformLocation(depth_program, "far_plane"), far_plane)
+        sm.bind()
+        for obj in all_objects:
+            obj.draw(override_program=depth_program)
+        sm.unbind(largura, altura)
+
+    # --- pass 2: spot light 2D depth ---
+    glUseProgram(spot_depth_program)
+    for i, (sl, sm) in enumerate(zip(manager._spot_lights, spot_shadow_maps)):
+        mat = sm.get_light_space_matrix(sl, far_plane)
+        glUniformMatrix4fv(
+            glGetUniformLocation(spot_depth_program, "light_space_matrix"),
+            1, GL_FALSE, np.array(mat)
+        )
+        sm.bind()
+        for obj in all_objects:
+            obj.draw(override_program=spot_depth_program)
+        sm.unbind(largura, altura)
+
+    # --- pass 3: normal render ---
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glUseProgram(program)
+
+    for i, sm in enumerate(point_shadow_maps):
+        glActiveTexture(GL_TEXTURE0 + 8 + i)
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sm.cubemap)
+        glUniform1i(glGetUniformLocation(program, f"shadow_cubemaps[{i}]"), 8 + i)
+
+    offset = 8 + len(point_shadow_maps)
+    for i, sm in enumerate(spot_shadow_maps):
+        glActiveTexture(GL_TEXTURE0 + offset + i)
+        glBindTexture(GL_TEXTURE_2D, sm.texture)
+        glUniform1i(glGetUniformLocation(program, f"spot_shadow_maps[{i}]"), offset + i)
+
+    glUniform1f(glGetUniformLocation(program, "far_plane"), far_plane)
+    manager.upload(camera.get_position(), spot_shadow_maps=spot_shadow_maps)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glClearColor(1.0, 1.0, 1.0, 1.0)
@@ -237,8 +296,8 @@ while not glfw.window_should_close(window):
 
 
 
-    entulho.set_parameters(0,destroyed)
-    entulho.draw()
+    '''entulho.set_parameters(0,destroyed)
+    entulho.draw()'''
 
 
     bunker.set_parameters(0,rubble)

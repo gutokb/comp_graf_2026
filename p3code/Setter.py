@@ -3,7 +3,7 @@ from OpenGL.GL import *
 import os
 
 class Shader:
-    def __init__(self, vertexPath: str, fragmentPath: str):
+    def __init__(self, vertexPath: str, fragmentPath: str, geometryPath=None):
         # Initialize ID to None to avoid AttributeError if loading fails
         self.ID = None
         
@@ -40,11 +40,26 @@ class Shader:
             self.ID = glCreateProgram()
             glAttachShader(self.ID, vertex)
             glAttachShader(self.ID, fragment)
+
+            if geometryPath:
+                geometry = glCreateShader(GL_GEOMETRY_SHADER)
+                glShaderSource(geometry, open(geometryPath).read())
+                glCompileShader(geometry)
+                self.checkCompileErrors(geometry, "GEOMETRY")
+                glAttachShader(self.ID, geometry)
+                glDeleteShader(geometry)
+
+            glBindAttribLocation(self.ID, 0, "position")
+            glBindAttribLocation(self.ID, 1, "texture_coord")
+            glBindAttribLocation(self.ID, 2, "normal")
+                        
             glLinkProgram(self.ID)
             self.checkCompileErrors(self.ID, "PROGRAM")
             # delete the shaders as they're linked into our program now and no longer necessary
             glDeleteShader(vertex)
             glDeleteShader(fragment)
+           
+
         
         except IOError as e:
             print(f"ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: {e}")
@@ -108,3 +123,14 @@ def set(altura, largura):
 
     program = ourShader.getProgram()
     return program, window
+
+def make_depth_program():
+    s = Shader("shaders/depth_cubemap.vs",
+               "shaders/depth_cubemap.fs",
+               "shaders/depth_cubemap.gs")
+    return s.getProgram()
+
+def make_spot_depth_program():
+    s = Shader("shaders/depth_spot.vs",
+               "shaders/depth_spot.fs")
+    return s.getProgram()

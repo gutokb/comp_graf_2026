@@ -11,6 +11,7 @@ class Object:
         self.transformations = []  # list of chars: 't', 'r', 's'
         self.parameters = []       # list of float lists, one per transformation
         self.mat_transform = np.eye(4,4)
+        self.visible = True 
 
     def set_model(self, angle_deg, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z):
         m = glm.mat4(1.0)
@@ -60,24 +61,48 @@ class Object:
         combined = glm.mat4(1.0)
         for kind, params in zip(reversed(self.transformations), reversed(self.parameters)):
             if params is None:
-                raise RuntimeError(f"Parameters not set for transformation '{kind}'.")
+                continue  # skip unset transformations instead of crashing
             combined = combined * self._build_matrix(kind, params)
         return np.array(combined)
+    
+
 
     def clear_transformations(self):
         self.transformations = []
         self.parameters = []
 
-    def draw(self):
-        loc_model = glGetUniformLocation(self.program, "model")
+    def draw(self, override_program=None):
+        if not self.visible:
+            return
+
+        prog = override_program if override_program else self.program
+        glUseProgram(prog)
+
+        glBindVertexArray(self.loader.vao)   # add this
+
+        loc_model = glGetUniformLocation(prog, "model")
         glUniformMatrix4fv(loc_model, 1, GL_TRUE, self.mat_model)
 
         if self.transformations:
             self.mat_transform = self._combined_transform()
-        
-        loc = glGetUniformLocation(self.program, "mat_transformation")
-        glUniformMatrix4fv(loc, 1, GL_TRUE, self.mat_transform)
+            loc = glGetUniformLocation(prog, "mat_transformation")
+            glUniformMatrix4fv(loc, 1, GL_TRUE, self.mat_transform)
 
-        glBindTexture(GL_TEXTURE_2D, self.textureId)
+        if override_program is None:
+            glBindTexture(GL_TEXTURE_2D, self.textureId)
+
+
+        from OpenGL.GL import glGetIntegerv, GL_CURRENT_PROGRAM, GL_VERTEX_ARRAY_BINDING
+        current_program = glGetIntegerv(GL_CURRENT_PROGRAM)
+        current_vao = glGetIntegerv(GL_VERTEX_ARRAY_BINDING)
+        print(f"pre-draw: program={current_program}, vao={current_vao}, start={self.start}, qt={self.qt}")
+
+        # check each attribute
+        for loc, name in [(0, 'position'), (1, 'texture_coord'), (2, 'normal')]:
+            enabled = glGetVertexAttribiv(loc, GL_VERTEX_ATTRIB_ARRAY_ENABLED)
+            print(f"  attrib {loc} ({name}): enabled={enabled}")
+
+
         glDrawArrays(GL_TRIANGLES, self.start, self.qt)
+        glBindVertexArray(0)               # add this
 

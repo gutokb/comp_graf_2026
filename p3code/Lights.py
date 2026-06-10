@@ -1,4 +1,6 @@
-from OpenGL.GL import glGetUniformLocation, glUniform1f, glUniform3f
+from OpenGL.GL import *
+import math
+import numpy as np
 
 class AmbientLight:
     def __init__(self, program, strength=0.1, color=(1,1,1)):
@@ -37,7 +39,7 @@ class SpotLight:
 
 
 class LightManager:
-    def __init__(self, program, shininess=32.0):
+    def __init__(self, program, shininess=32.0, far_plane=100.0):
         self._program    = program
         self._point_lights = []
         self._spot_lights  = []
@@ -45,6 +47,7 @@ class LightManager:
         self._loc_num_point      = glGetUniformLocation(program, "num_point_lights")
         self._loc_num_spot       = glGetUniformLocation(program, "num_spot_lights")
         self._loc_view_pos       = glGetUniformLocation(program, "view_pos")
+        self._far_plane = far_plane
         self.set_shininess(shininess)
 
     def set_shininess(self, v):
@@ -60,7 +63,7 @@ class LightManager:
         glUniform3f(self._loc_view_pos, *pos)
         self._view_pos = pos
 
-    def upload(self, pos):
+    def upload(self, pos, spot_shadow_maps=None):
         from OpenGL.GL import glUniform1i, glUniform1f, glUniform3f
         glUniform1i(self._loc_num_point, len(self._point_lights))
         glUniform1i(self._loc_num_spot,  len(self._spot_lights))
@@ -74,7 +77,6 @@ class LightManager:
             glUniform1f(glGetUniformLocation(self._program, f"point_lights[{i}].quadratic"), pl.quadratic)
 
         for i, sl in enumerate(self._spot_lights):
-            import math
             glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].pos"),             *sl.pos)
             glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].direction"),       *sl.direction)
             glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].color"),           *sl.color)
@@ -83,3 +85,8 @@ class LightManager:
             glUniform1f(glGetUniformLocation(self._program, f"spot_lights[{i}].constant"),        sl.constant)
             glUniform1f(glGetUniformLocation(self._program, f"spot_lights[{i}].linear"),          sl.linear)
             glUniform1f(glGetUniformLocation(self._program, f"spot_lights[{i}].quadratic"),       sl.quadratic)
+            if spot_shadow_maps:
+                mat = spot_shadow_maps[i].get_light_space_matrix(sl, self._far_plane)
+                loc = glGetUniformLocation(self._program,
+                                        f"spot_light_space_matrices[{i}]")
+                glUniformMatrix4fv(loc, 1, GL_FALSE, np.array(mat))

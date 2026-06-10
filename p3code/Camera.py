@@ -100,3 +100,6 @@ class Camera:
 
     def get_projection(self):
         return np.array(glm.perspective(glm.radians(self.fov), self.largura / self.altura, 0.1, 200.0))
+    
+    def get_position(self):
+        return (self.pos.x, self.pos.y, self.pos.z)
