@@ -5,7 +5,8 @@ import os
 import ctypes
 
 class Loader:
-    vertices_list = []    
+    vertices_list = []
+    normals_list = []
     textures_coord_list = []
     numberTextures = 0
     program = 0
@@ -25,6 +26,7 @@ class Loader:
    
         objects = {}
         vertices = []
+        normals = []
         texture_coords = []
         faces = []
 
@@ -44,25 +46,32 @@ class Loader:
             elif values[0] == 'vt':
                 texture_coords.append(values[1:3])
 
+            elif values[0] == 'vn':
+                normals.append(values[1:4])
+
             ### recuperando faces 
             elif values[0] in ('usemtl', 'usemat'):
                 material = values[1]
             elif values[0] == 'f':
                 face = []
                 face_texture = []
+                face_normal = []
                 for v in values[1:]:
                     w = v.split('/')
                     face.append(int(w[0]))
                     if len(w) >= 2 and len(w[1]) > 0:
                         face_texture.append(int(w[1]))
+                        face_normal.append(int(w[2]) if len(w) > 2 and w[2] else 0)
                     else:
                         face_texture.append(0)
+                        face_normal.append(0)
 
-                faces.append((face, face_texture, material))
+                faces.append((face, face_texture,face_normal, material))
 
         model = {}
         model['vertices'] = vertices
         model['texture'] = texture_coords
+        model['normals'] = normals
         model['faces'] = faces
 
         return model
@@ -110,12 +119,17 @@ class Loader:
         print('Processando modelo {}. Vertice inicial: {}'.format(objFile, len(self.vertices_list)))
         faces_visited = []
         for face in modelo['faces']:
-            if face[2] not in faces_visited:
-                faces_visited.append(face[2])
+            if face[3] not in faces_visited:
+                faces_visited.append(face[3])
             for vertice_id in self.circular_sliding_window_of_three(face[0]):
                 self.vertices_list.append(modelo['vertices'][vertice_id - 1])
             for texture_id in self.circular_sliding_window_of_three(face[1]):
                 self.textures_coord_list.append(modelo['texture'][texture_id - 1])
+            for normal_id in self.circular_sliding_window_of_three(face[2]):   # ADD THIS BLOCK
+                if normal_id > 0:
+                    self.normals_list.append(modelo['normals'][normal_id - 1])
+                else:
+                    self.normals_list.append([0.0, 0.0, 1.0])  # fallback flat normal
             
         verticeFinal = len(self.vertices_list)
         print('Processando modelo {}. Vertice final: {}'.format(objFile, len(self.vertices_list)))
@@ -128,30 +142,39 @@ class Loader:
         return verticeInicial, verticeFinal - verticeInicial, self.numberTextures-1
     
     def upload(self):
-        buffer_VBO = glGenBuffers(2)
+        buffer_VBO = glGenBuffers(3)          # was 2, now 3
+
+        # --- positions (unchanged) ---
         vertices = np.zeros(len(self.vertices_list), [("position", np.float32, 3)])
         vertices['position'] = self.vertices_list
-
-
-        # Upload data
         glBindBuffer(GL_ARRAY_BUFFER, buffer_VBO[0])
         glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
         stride = vertices.strides[0]
-        offset = ctypes.c_void_p(0)
         loc_vertices = glGetAttribLocation(self.program, "position")
         glEnableVertexAttribArray(loc_vertices)
-        glVertexAttribPointer(loc_vertices, 3, GL_FLOAT, False, stride, offset)
+        glVertexAttribPointer(loc_vertices, 3, GL_FLOAT, False, stride, ctypes.c_void_p(0))
 
-        textures = np.zeros(len(self.textures_coord_list), [("position", np.float32, 2)]) # duas coordenadas
+        # --- texture coords (unchanged) ---
+        textures = np.zeros(len(self.textures_coord_list), [("position", np.float32, 2)])
         textures['position'] = self.textures_coord_list
-
-
-        # Upload data
         glBindBuffer(GL_ARRAY_BUFFER, buffer_VBO[1])
         glBufferData(GL_ARRAY_BUFFER, textures.nbytes, textures, GL_STATIC_DRAW)
         stride = textures.strides[0]
-        offset = ctypes.c_void_p(0)
         loc_texture_coord = glGetAttribLocation(self.program, "texture_coord")
-
         glEnableVertexAttribArray(loc_texture_coord)
-        glVertexAttribPointer(loc_texture_coord, 2, GL_FLOAT, False, stride, offset)
+        glVertexAttribPointer(loc_texture_coord, 2, GL_FLOAT, False, stride, ctypes.c_void_p(0))
+
+        # --- normals (new) ---
+        normals = np.zeros(len(self.normals_list), [("position", np.float32, 3)])
+        normals['position'] = self.normals_list
+        glBindBuffer(GL_ARRAY_BUFFER, buffer_VBO[2])
+        glBufferData(GL_ARRAY_BUFFER, normals.nbytes, normals, GL_STATIC_DRAW)
+        stride = normals.strides[0]
+        loc_normal = glGetAttribLocation(self.program, "normal")
+        glEnableVertexAttribArray(loc_normal)
+        glVertexAttribPointer(loc_normal, 3, GL_FLOAT, False, stride, ctypes.c_void_p(0))
+
+        loc_normal = glGetAttribLocation(self.program, "normal")
+        print("aiaiai")
+        print("normal attrib location:", loc_normal)
+        print("normals_list length:", len(self.normals_list))

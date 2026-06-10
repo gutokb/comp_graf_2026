@@ -1,5 +1,6 @@
 import Setter
 import glfw
+import Lights
 from OpenGL.GL import *
 import OpenGL.GL.shaders
 import numpy as np
@@ -21,7 +22,20 @@ glfw.set_cursor_pos_callback(window, camera.mouse_callback)
 glfw.set_scroll_callback(window, camera.scroll_callback)
 glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
+
 loader = Loader.Loader(program)
+
+ambient = Lights.AmbientLight(program, strength=0.1, color=(1,1,1))
+
+manager = Lights.LightManager(program, shininess=32.0)
+manager.add_point_light(Lights.PointLight(pos=(10,10,10), color=(1,1,1)))
+manager.add_point_light(Lights.PointLight(pos=(-10,5,0), color=(1,0.5,0.2)))  # warm light
+manager.add_spot_light(Lights.SpotLight(pos=(0,10,0), direction=(0,-1,0)))
+
+
+
+
+
 
 free = False
 detonate = False
@@ -207,6 +221,7 @@ glfw.set_key_callback(window, key_event)
 glfw.show_window(window)
 while not glfw.window_should_close(window):
     camera.tick(glfw.get_time())
+    manager.upload((camera.pos.x, camera.pos.y, camera.pos.z))
     glfw.poll_events()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
