@@ -92,7 +92,7 @@ tumbleweedtrue =Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['obj
 tumbleweedtrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1.0, 1.0, 1.0)
 tumbleweedtrue.set_transformations(['s','t'])
     
-pedra = []
+pedras = []
 for i in range(50):
     x = random.uniform(-90.0, 90.0)
     z = random.uniform(-90.0, 90.0)
@@ -101,7 +101,7 @@ for i in range(50):
     s_p = random.uniform(0.009, 0.05)
     pedra_t = [x, z]
     pedra = [s_p, pedra_t]
-    pedra.append(pedra)
+    pedras.append(pedra)
 pedratrue = Object.Object(loader, 'objetos/pedra/Desert_Rock_Base.obj', ['objetos/pedra/DefaultMaterial.png'], program)
 pedratrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1, 1, 1)
 pedratrue.set_transformations(['s', 't'])
@@ -251,7 +251,7 @@ while not glfw.window_should_close(window):
         tumbleweedtrue.set_parameters(1,[t[1][0],0.0,t[1][1]])
         tumbleweedtrue.draw()
     
-    for p in pedra:
+    for p in pedras:
         pedratrue.set_parameters(0,[p[0], p[0], p[0]])
         pedratrue.set_parameters(1,[p[1][0], 0.0, p[1][1]])
         pedratrue.draw()
