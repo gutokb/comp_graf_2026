@@ -89,4 +89,4 @@ class LightManager:
                 mat = spot_shadow_maps[i].get_light_space_matrix(sl, self._far_plane)
                 loc = glGetUniformLocation(self._program,
                                         f"spot_light_space_matrices[{i}]")
-                glUniformMatrix4fv(loc, 1, GL_FALSE, np.array(mat))
+                glUniformMatrix4fv(loc, 1, GL_TRUE, np.array(mat))

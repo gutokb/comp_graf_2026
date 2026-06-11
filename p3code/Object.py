@@ -85,22 +85,15 @@ class Object:
 
         if self.transformations:
             self.mat_transform = self._combined_transform()
-            loc = glGetUniformLocation(prog, "mat_transformation")
-            glUniformMatrix4fv(loc, 1, GL_TRUE, self.mat_transform)
+        else:
+            self.mat_transform = np.eye(4, dtype=np.float32)
+        loc = glGetUniformLocation(prog, "mat_transformation")
+        glUniformMatrix4fv(loc, 1, GL_TRUE, self.mat_transform)
 
         if override_program is None:
+            glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, self.textureId)
 
-
-        from OpenGL.GL import glGetIntegerv, GL_CURRENT_PROGRAM, GL_VERTEX_ARRAY_BINDING
-        current_program = glGetIntegerv(GL_CURRENT_PROGRAM)
-        current_vao = glGetIntegerv(GL_VERTEX_ARRAY_BINDING)
-        print(f"pre-draw: program={current_program}, vao={current_vao}, start={self.start}, qt={self.qt}")
-
-        # check each attribute
-        for loc, name in [(0, 'position'), (1, 'texture_coord'), (2, 'normal')]:
-            enabled = glGetVertexAttribiv(loc, GL_VERTEX_ATTRIB_ARRAY_ENABLED)
-            print(f"  attrib {loc} ({name}): enabled={enabled}")
 
 
         glDrawArrays(GL_TRIANGLES, self.start, self.qt)

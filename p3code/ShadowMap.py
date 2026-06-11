@@ -99,7 +99,7 @@ class SpotShadowMap:
         pos  = glm.vec3(*light.pos)
         dire = glm.vec3(*light.direction)
         proj = glm.perspective(
-            glm.radians(light.outer_cut_off * 2.0), 1.0, 0.1, far_plane
+            glm.radians(90.0), 1.0, 1.0, far_plane
         )
         # pick an up vector that isn't parallel to direction
         up = glm.vec3(0,1,0) if abs(dire.y) < 0.99 else glm.vec3(1,0,0)
