@@ -28,9 +28,14 @@ loader = Loader.Loader(program)
 ambient = Lights.AmbientLight(program, strength=0.1, color=(1,1,1))
 
 manager = Lights.LightManager(program, shininess=32.0)
-manager.add_point_light(Lights.PointLight(pos=(10,10,10), color=(1,1,1)))
-manager.add_point_light(Lights.PointLight(pos=(-10,5,0), color=(1,0.5,0.2)))  # warm light
-manager.add_spot_light(Lights.SpotLight(pos=(0,10,0), direction=(0,-1,0)))
+
+# Luz avião externa
+plane_light = Lights.PointLight(pos=(0, 20.50, 0), color=(1,1,1), linear=0.014, quadratic=0.007)
+manager.add_point_light(plane_light)
+# Luz do Bunker
+manager.add_point_light(Lights.PointLight(pos=(-1.45, 2.50, 0.11), color=(1,0.5,0.2)))  # warm light
+# Lanterna
+manager.add_spot_light(Lights.SpotLight(pos=(1.45, -0.15, -2.45), direction=(0,0,1)))
 
 
 
@@ -65,6 +70,34 @@ entulho.set_transformations(['s'])
 bunker = Object.Object(loader, 'objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'], program)
 bunker.set_model(0.0, 0, 0, 1, 0, 0, 0, 2.5, 2.5, 2.5)
 bunker.set_transformations(['s'])
+
+lampada = Object.Object(loader, 'objetos/lampada/lamp.obj', ['objetos/lampada/lamp.png'], program)
+lampada.set_model(90.0, 1, 0, 0, -1.40, 2.65, 0.11, 0.001, 0.001, 0.001)
+lampada.set_transformations(['s', 't', 'r', 't'])
+
+lanterna = Object.Object(loader, 'objetos/lanterna/lanterna.obj', ['objetos/lanterna/lanterna.png'], program)
+lanterna.set_model(-90.0, 0, 1, 0, 1.32, -0.25, -1.6, 0.0011, 0.0011, 0.0011)
+lanterna.set_transformations(['s',])
+
+porta = Object.Object(loader, 'objetos/porta/porta.obj', ['objetos/porta/porta.png'], program)
+porta.set_model(90.0, 0, 1, 0, -3.20, -0.4, 0.18, 0.0099, 0.0087, 0.0087)
+porta.set_transformations(['s'])
+
+janela1 = Object.Object(loader, 'objetos/janela/janela.obj', ['objetos/janela/janela.png'], program)
+janela1.set_model(90.0, 0, 0, 1, 1.40, 1.0, -2.45, 0.0057, 0.0057, 0.0057)
+janela1.set_transformations(['s'])
+
+janela2 = Object.Object(loader, 'objetos/janela/janela.obj', ['objetos/janela/janela.png'], program)
+janela2.set_model(90.0, 0, 0, 1, 1.71, 1.1, 5.38, 0.0062, 0.0062, 0.0062)
+janela2.set_transformations(['s'])
+
+janela3 = Object.Object(loader, 'objetos/janela/janela.obj', ['objetos/janela/janela.png'], program)
+janela3.set_model(90.0, 0, 1, 0, 5.935, 1.1, 1.7, 0.0074, 0.0074, 0.0074)
+janela3.set_transformations(['s'])
+
+janela4 = Object.Object(loader, 'objetos/janela/janela.obj', ['objetos/janela/janela.png'], program)
+janela4.set_model(90.0, 0, 1, 0, 5.88, 0.9, -1.38, 0.0074, 0.0074, 0.0074)
+janela4.set_transformations(['s'])
 
 mesa = Object.Object(loader, 'objetos/mesa/Table.obj', ['objetos/mesa/Table_Mt.png'], program)
 mesa.set_model(0.0, 0, 0, 1, 3.2, 0.173, 0, 0.012, 0.012, 0.012)
@@ -221,6 +254,9 @@ glfw.set_key_callback(window, key_event)
 glfw.show_window(window)
 while not glfw.window_should_close(window):
     camera.tick(glfw.get_time())
+    
+    plane_light.pos = (plane_t[0], 21.15, plane_t[2])
+    
     manager.upload((camera.pos.x, camera.pos.y, camera.pos.z))
     glfw.poll_events()
 
@@ -244,6 +280,33 @@ while not glfw.window_should_close(window):
     bunker.set_parameters(0,rubble)
     bunker.draw()
     
+    lampada.set_parameters(0,rubble)
+    lampada.set_parameters(1, [1.4, -2.65, -0.11])
+    lampada.set_parameters(2, [90.0, 0.0, -1.0, 0.0])
+    lampada.set_parameters(3, [-1.4, 2.65, 0.11])
+    lampada.draw()
+    
+    lanterna.set_parameters(0,rubble)
+    #lanterna.set_parameters(1, [-1.32, 0.25, 1.6])
+    #lanterna.set_parameters(2, [45.0, 0.0, 1.0, 0.0])
+    #lanterna.set_parameters(3, [1.32, -0.25, -1.6])
+    lanterna.draw()
+    
+    
+    porta.set_parameters(0,rubble)
+    porta.draw()
+    
+    janela1.set_parameters(0,rubble)
+    janela1.draw()
+    
+    janela2.set_parameters(0,rubble)
+    janela2.draw()
+    
+    janela3.set_parameters(0,rubble)
+    janela3.draw()
+    
+    janela4.set_parameters(0,rubble)
+    janela4.draw()
 
     mesa.set_parameters(0,rubble)
     mesa.draw()
