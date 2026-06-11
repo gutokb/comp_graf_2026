@@ -26,6 +26,8 @@ struct SpotLight {
 uniform float      ambient_strength;
 uniform vec3       ambient_color;
 uniform float      shininess;
+uniform float      kd;
+uniform float      ks;
 uniform vec3       view_pos;
 uniform int        num_point_lights;
 uniform int        num_spot_lights;
@@ -87,7 +89,7 @@ vec3 calc_point_light(int i, PointLight light, vec3 norm, vec3 view_dir){
     float att         = attenuation(length(light.pos - out_frag_pos),
                                     light.constant, light.linear, light.quadratic);
     float shadow      = calc_point_shadow(i, out_frag_pos, light.pos);
-    return light.color * (diff + spec) * att * (1.0 - shadow);
+    return light.color * (kd * diff + ks * spec) * att * (1.0 - shadow);
 }
 
 vec3 calc_spot_light(int i, SpotLight light, vec3 norm, vec3 view_dir){
@@ -101,7 +103,7 @@ vec3 calc_spot_light(int i, SpotLight light, vec3 norm, vec3 view_dir){
     float att         = attenuation(length(light.pos - out_frag_pos),
                                     light.constant, light.linear, light.quadratic);
     float shadow      = calc_spot_shadow(i, out_frag_pos);
-    return light.color * (diff + spec) * att * intensity * (1.0 - shadow);
+    return light.color * (kd * diff + ks * spec) * att * intensity * (1.0 - shadow);
 }
 
 void main(){

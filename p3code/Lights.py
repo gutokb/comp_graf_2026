@@ -22,6 +22,7 @@ class PointLight:
         self.constant  = constant   # attenuation
         self.linear    = linear
         self.quadratic = quadratic
+        self.enabled   = True
 
 
 class SpotLight:
@@ -36,6 +37,7 @@ class SpotLight:
         self.constant      = constant
         self.linear        = linear
         self.quadratic     = quadratic
+        self.enabled       = True
 
 
 class LightManager:
@@ -71,7 +73,7 @@ class LightManager:
 
         for i, pl in enumerate(self._point_lights):
             glUniform3f(glGetUniformLocation(self._program, f"point_lights[{i}].pos"),       *pl.pos)
-            glUniform3f(glGetUniformLocation(self._program, f"point_lights[{i}].color"),     *pl.color)
+            glUniform3f(glGetUniformLocation(self._program, f"point_lights[{i}].color"),     *(pl.color if pl.enabled else (0.0, 0.0, 0.0)))
             glUniform1f(glGetUniformLocation(self._program, f"point_lights[{i}].constant"),  pl.constant)
             glUniform1f(glGetUniformLocation(self._program, f"point_lights[{i}].linear"),    pl.linear)
             glUniform1f(glGetUniformLocation(self._program, f"point_lights[{i}].quadratic"), pl.quadratic)
@@ -79,7 +81,7 @@ class LightManager:
         for i, sl in enumerate(self._spot_lights):
             glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].pos"),             *sl.pos)
             glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].direction"),       *sl.direction)
-            glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].color"),           *sl.color)
+            glUniform3f(glGetUniformLocation(self._program, f"spot_lights[{i}].color"),           *(sl.color if sl.enabled else (0.0, 0.0, 0.0)))
             glUniform1f(glGetUniformLocation(self._program, f"spot_lights[{i}].cut_off"),         math.cos(math.radians(sl.cut_off)))
             glUniform1f(glGetUniformLocation(self._program, f"spot_lights[{i}].outer_cut_off"),   math.cos(math.radians(sl.outer_cut_off)))
             glUniform1f(glGetUniformLocation(self._program, f"spot_lights[{i}].constant"),        sl.constant)

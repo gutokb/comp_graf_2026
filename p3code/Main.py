@@ -23,50 +23,46 @@ glfw.set_cursor_pos_callback(window, camera.mouse_callback)
 glfw.set_scroll_callback(window, camera.scroll_callback)
 glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
-
 loader = Loader.Loader(program)
 
 ambient = Lights.AmbientLight(program, strength=0.1, color=(1,1,1))
 
 manager = Lights.LightManager(program, shininess=32.0)
 
-# Luz avião externa
-plane_light = Lights.PointLight(pos=(0, 20.50, 0), color=(1,1,1), linear=0.014, quadratic=0.007)
-manager.add_point_light(plane_light)
-# Luz do Bunker
-manager.add_point_light(Lights.PointLight(pos=(-1.45, 2.50, 0.11), color=(1,0.5,0.2)))  # warm light
-# Lanterna
+# spot[0]: luz do avião (exterior)
+plane_light = Lights.SpotLight(pos=(0, 20.50, 0), direction=(2,-1,0), color=(1,1,1), linear=0.014, quadratic=0.007)
+manager.add_spot_light(plane_light)
+# point[0]: luz do bunker (laranja)
+manager.add_point_light(Lights.PointLight(pos=(-1.45, 2.50, 0.11), color=(1,0.5,0.2)))
+# spot[1]: lanterna
 manager.add_spot_light(Lights.SpotLight(pos=(1.45, -0.15, -2.45), direction=(0,0,1)))
-
-
-
-
-
 
 free = False
 detonate = False
 collapse = False
 angle_limit = 90
+ambient_enabled = True
+ambient_st = 0.1
 
 plane_t = [-70.0, 0.0, 0.0]
 
-
-bomb_t = [-70.0, 0.0, 0.0]
+bomb_t  = [-70.0, 0.0, 0.0]
 bomb_r1 = [0.0, 0.0, 0.0, 1.0]
-bomb_s = [1.0, 1.0, 1.0]
-
+bomb_s  = [1.0, 1.0, 1.0]
 
 explode_t = [0.0, 0.0, 0.0]
 explode_s = [0.0, 0.0, 0.0]
 
-rubble = [1.0, 1.0, 1.0]
-
+rubble    = [1.0, 1.0, 1.0]
 destroyed = [0.0, 0.0, 0.0]
 
 entulho = Object.Object(loader, 'objetos/entulho/entulho.obj', ['objetos/entulho/entulho.png'], program)
 entulho.set_model(0.0, 0, 0, 1, 0, 0, 0, 4.0, 4.0, 4.0)
 entulho.set_transformations(['s'])
 
+holo = Object.Object(loader, 'objetos/holo/holo.obj', ['objetos/holo/holo.jpg'], program)
+holo.set_model(-90.0, 0, 1, 0, 2.5, 20.15, 0.2, 3.0, 3.0, 3.0)
+holo.set_transformations(['t'])
 
 bunker = Object.Object(loader, 'objetos/bunker/bunker.obj', ['objetos/bunker/bunker.jpg'], program)
 bunker.set_model(0.0, 0, 0, 1, 0, 0, 0, 2.5, 2.5, 2.5)
@@ -78,7 +74,7 @@ lampada.set_transformations(['s', 't', 'r', 't'])
 
 lanterna = Object.Object(loader, 'objetos/lanterna/lanterna.obj', ['objetos/lanterna/lanterna.png'], program)
 lanterna.set_model(-90.0, 0, 1, 0, 1.32, -0.25, -1.6, 0.0011, 0.0011, 0.0011)
-lanterna.set_transformations(['s',])
+lanterna.set_transformations(['s'])
 
 porta = Object.Object(loader, 'objetos/porta/porta.obj', ['objetos/porta/porta.png'], program)
 porta.set_model(90.0, 0, 1, 0, -3.20, -0.4, 0.18, 0.0099, 0.0087, 0.0087)
@@ -119,9 +115,7 @@ for i in range(40):
     while(abs(z) < 10):
         z = random.uniform(-90.0, 90.0)
     s_c = random.uniform(0.25, 0.6)
-    cacto_t = [x,z]
-    cacto = [s_c, cacto_t]
-    cactos.append(cacto)
+    cactos.append([s_c, [x, z]])
 cactotrue = Object.Object(loader, 'objetos/cactus/Cactus.obj', ['objetos/cactus/material_0.png'], program)
 cactotrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1.0, 1.0, 1.0)
 cactotrue.set_transformations(['s','t'])
@@ -133,13 +127,11 @@ for i in range(20):
     while(abs(z) < 10):
         z = random.uniform(-90.0, 90.0)
     s_t = random.uniform(0.002, 0.008)
-    tumble_t = [x,z]
-    tumble = [s_t, tumble_t]
-    tumbleweed.append(tumble)
-tumbleweedtrue =Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['objetos/tumbleweed/Tumbleweed.png'], program)
+    tumbleweed.append([s_t, [x, z]])
+tumbleweedtrue = Object.Object(loader, 'objetos/tumbleweed/Tumbleweed.obj', ['objetos/tumbleweed/Tumbleweed.png'], program)
 tumbleweedtrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1.0, 1.0, 1.0)
 tumbleweedtrue.set_transformations(['s','t'])
-    
+
 pedras = []
 for i in range(50):
     x = random.uniform(-90.0, 90.0)
@@ -147,9 +139,7 @@ for i in range(50):
     while(abs(z) < 10):
         z = random.uniform(-90.0, 90.0)
     s_p = random.uniform(0.009, 0.05)
-    pedra_t = [x, z]
-    pedra = [s_p, pedra_t]
-    pedras.append(pedra)
+    pedras.append([s_p, [x, z]])
 pedratrue = Object.Object(loader, 'objetos/pedra/Desert_Rock_Base.obj', ['objetos/pedra/DefaultMaterial.png'], program)
 pedratrue.set_model(0.0, 0, 0, 1, 0.0, -0.5, 0.0, 1, 1, 1)
 pedratrue.set_transformations(['s', 't'])
@@ -183,35 +173,90 @@ telefone.set_model(180.0, 0, 1, 0, -1.6, 1.2, 3.92, 0.005, 0.005, 0.005)
 telefone.set_transformations(['s'])
 
 sky = Object.Object(loader, 'objetos/skybox/skybox.obj', ['objetos/skybox/skybox2.webp'], program)
-sky.set_model(0.0, 0, 0, 0, 0, 6.0, 0, 100.0, 100.0,100.0)
+sky.set_model(0.0, 0, 0, 0, 0, 6.0, 0, 100.0, 100.0, 100.0)
 
 plane = Object.Object(loader, 'objetos/plane/plane.obj', ['objetos/plane/plane.png'], program)
-plane.set_model(180.0, 0, 1, 0, 0, 21.15, 0, 0.6, 0.6,0.6)
-plane.set_transformations(['t',])
+plane.set_model(180.0, 0, 1, 0, 0, 21.15, 0, 0.6, 0.6, 0.6)
+plane.set_transformations(['t'])
 
 floor = Object.Object(loader, 'objetos/floor/floor.obj', ['objetos/floor/floor.jpg'], program)
 floor.set_model(0.0, 0, 0, 0, 0, -0.51, 0, 100.0, 1.0, 100.0)
 
-
 loader.upload()
-print("VAO ID:", loader.vao)
-print("vertices count:", len(loader.vertices_list))
-print("normals count:", len(loader.normals_list))
-print("textures count:", len(loader.textures_coord_list))
+
+# materiais: (kd, ks, shininess)
+bunker.kd,        bunker.ks,        bunker.shininess        = 0.80, 0.15,  16
+entulho.kd,       entulho.ks,       entulho.shininess       = 0.80, 0.10,   8
+floor.kd,         floor.ks,         floor.shininess         = 0.90, 0.05,   4
+porta.kd,         porta.ks,         porta.shininess         = 0.70, 0.30,  32
+janela1.kd,       janela1.ks,       janela1.shininess       = 0.20, 0.95, 256
+janela2.kd,       janela2.ks,       janela2.shininess       = 0.20, 0.95, 256
+janela3.kd,       janela3.ks,       janela3.shininess       = 0.20, 0.95, 256
+janela4.kd,       janela4.ks,       janela4.shininess       = 0.20, 0.95, 256
+mesa.kd,          mesa.ks,          mesa.shininess          = 0.75, 0.35,  32
+cadeira.kd,       cadeira.ks,       cadeira.shininess       = 0.65, 0.50,  64
+sacodormir.kd,    sacodormir.ks,    sacodormir.shininess    = 0.85, 0.05,   8
+jornal.kd,        jornal.ks,        jornal.shininess        = 0.90, 0.02,   4
+lampada.kd,       lampada.ks,       lampada.shininess       = 0.40, 0.90, 128
+lanterna.kd,      lanterna.ks,      lanterna.shininess      = 0.50, 0.85, 128
+bomba.kd,         bomba.ks,         bomba.shininess         = 0.45, 0.95, 256
+arma.kd,          arma.ks,          arma.shininess          = 0.50, 0.85, 128
+comida1.kd,       comida1.ks,       comida1.shininess       = 0.45, 0.90, 256
+comida2.kd,       comida2.ks,       comida2.shininess       = 0.45, 0.90, 256
+telefone.kd,      telefone.ks,      telefone.shininess      = 0.50, 0.60,  64
+plane.kd,         plane.ks,         plane.shininess         = 0.55, 0.80, 128
+cactotrue.kd,     cactotrue.ks,     cactotrue.shininess     = 0.80, 0.20,  16
+tumbleweedtrue.kd, tumbleweedtrue.ks, tumbleweedtrue.shininess = 0.80, 0.05, 4
+pedratrue.kd,     pedratrue.ks,     pedratrue.shininess     = 0.75, 0.15,  16
+sky.kd,           sky.ks,           sky.shininess           = 1.00, 0.00,   1
+explosao.kd,      explosao.ks,      explosao.shininess      = 1.00, 0.00,   1
+
+# objetos que respondem ao ajuste de kd/ks pelo teclado (exclui skybox)
+scene_objects = [
+    bunker, entulho, floor, porta,
+    janela1, janela2, janela3, janela4,
+    mesa, cadeira, sacodormir, jornal,
+    lampada, lanterna, bomba, arma, comida1, comida2, telefone, plane,
+    cactotrue, tumbleweedtrue, pedratrue,
+]
 
 glEnable(GL_DEPTH_TEST)
 polygonal_mode = False
 
-# wrap key_event to also handle polygonal mode toggle
 original_key_event = camera.key_event
 def key_event(window, key, scancode, action, mods):
-    global polygonal_mode, free, detonate, bomb_r1, bomb_s, bomb_t, explode_s, explode_t, rubble, angle_limit, collapse, destroyed
+    global polygonal_mode, free, detonate, bomb_r1, bomb_s, bomb_t, explode_s, explode_t, rubble, angle_limit, collapse, destroyed, ambient_enabled, ambient_st
     original_key_event(window, key, scancode, action, mods)
 
-    if key == glfw.KEY_SPACE and action == glfw.PRESS:
-        if bomb_t[0]> -30 and bomb_t[0] < -10:
-            angle_limit = 80
+    # luzes: 1=ambiente  2=bunker(point0)  3=avião(spot0)  4=lanterna(spot1)
+    if key == glfw.KEY_1 and action == glfw.PRESS:
+        ambient_enabled = not ambient_enabled
+    if key == glfw.KEY_2 and action == glfw.PRESS:
+        manager._point_lights[0].enabled = not manager._point_lights[0].enabled
+    if key == glfw.KEY_3 and action == glfw.PRESS:
+        manager._spot_lights[0].enabled = not manager._spot_lights[0].enabled
+    if key == glfw.KEY_4 and action == glfw.PRESS:
+        manager._spot_lights[1].enabled = not manager._spot_lights[1].enabled
 
+    # difusa: 5=+ 6=−   especular: 7=+ 8=−
+    if key == glfw.KEY_5 and (action == glfw.PRESS or action == glfw.REPEAT):
+        for obj in scene_objects: obj.kd = min(1.0, obj.kd + 0.05)
+    if key == glfw.KEY_6 and (action == glfw.PRESS or action == glfw.REPEAT):
+        for obj in scene_objects: obj.kd = max(0.0, obj.kd - 0.05)
+    if key == glfw.KEY_7 and (action == glfw.PRESS or action == glfw.REPEAT):
+        for obj in scene_objects: obj.ks = min(1.0, obj.ks + 0.05)
+    if key == glfw.KEY_8 and (action == glfw.PRESS or action == glfw.REPEAT):
+        for obj in scene_objects: obj.ks = max(0.0, obj.ks - 0.05)
+
+    # ambiente: seta cima=+ seta baixo=−
+    if key == glfw.KEY_UP and (action == glfw.PRESS or action == glfw.REPEAT):
+        if ambient_st < 1.0: ambient_st += 0.05
+    if key == glfw.KEY_DOWN and (action == glfw.PRESS or action == glfw.REPEAT):
+        if ambient_st > 0.0: ambient_st -= 0.05
+
+    if key == glfw.KEY_SPACE and action == glfw.PRESS:
+        if bomb_t[0] > -30 and bomb_t[0] < -10:
+            angle_limit = 80
         free = True
 
     if key == glfw.KEY_P and action == glfw.PRESS:
@@ -219,13 +264,12 @@ def key_event(window, key, scancode, action, mods):
 
     if key == glfw.KEY_RIGHT and (action == glfw.PRESS or action == glfw.REPEAT):
         plane_t[0] += 0.6
-        if (free == False):
+        if not free:
             bomb_t = plane_t.copy()
         else:
-            if bomb_r1[0] >= - angle_limit:
+            if bomb_r1[0] >= -angle_limit:
                 bomb_r1[0] -= 0.90
-
-            elif detonate == False:
+            elif not detonate:
                 detonate = True
                 explode_s = [0.03, 0.03, 0.03]
                 bomb_s = [0.0, 0.0, 0.0]
@@ -233,11 +277,11 @@ def key_event(window, key, scancode, action, mods):
                 explode_t[0] += 20.0
                 if angle_limit < 90:
                     explode_t[1] += 3.0
-                if explode_t[0] > -15 and explode_t[0] < 15:
-                    rubble = [0.0, 0.0, 0.0]
+                if -15 < explode_t[0] < 15:
+                    rubble    = [0.0, 0.0, 0.0]
                     destroyed = [1.0, 1.0, 1.0]
 
-        if (detonate == True) and (explode_s[0] < 1.5) and (collapse == False):
+        if detonate and explode_s[0] < 1.5 and not collapse:
             explode_s[0] += 0.05
             explode_s[1] += 0.05
             explode_s[2] += 0.05
@@ -245,7 +289,7 @@ def key_event(window, key, scancode, action, mods):
             if explode_s[0] > 1.5:
                 collapse = True
 
-        if (collapse == True) and explode_s[0] > 0:
+        if collapse and explode_s[0] > 0:
             explode_s[0] -= 0.0125
             explode_s[1] -= 0.0125
             explode_s[2] -= 0.0125
@@ -253,193 +297,163 @@ def key_event(window, key, scancode, action, mods):
             if explode_s[0] < 0:
                 explode_s = [0.0, 0.0, 0.0]
 
-    
 glfw.set_key_callback(window, key_event)
 
 depth_program      = Setter.make_depth_program()
 spot_depth_program = Setter.make_spot_depth_program()
 
-print("depth_program ID:", depth_program)
-print("spot_depth_program ID:", spot_depth_program)
-print("main program ID:", program)
-
-far_plane          = 100.0
+far_plane = 100.0
 
 point_shadow_maps = [CubeShadowMap(1024) for _ in range(len(manager._point_lights))]
 spot_shadow_maps  = [SpotShadowMap(1024) for _ in range(len(manager._spot_lights))]
 
-all_objects = [bunker, plane, floor, bomba, mesa]
+# objetos que projetam sombra
+all_objects = [bunker, floor, mesa, porta, janela1, janela2, janela3, janela4, cadeira]
+
 glfw.show_window(window)
 while not glfw.window_should_close(window):
     glfw.poll_events()
     camera.tick(glfw.get_time())
-        # --- pass 1: point light cubemap depth ---
+
+    # pass 1: sombras de point lights (cubemap)
     glUseProgram(depth_program)
     for i, (pl, sm) in enumerate(zip(manager._point_lights, point_shadow_maps)):
         matrices = sm.get_shadow_matrices(pl.pos, far_plane)
         for j, mat in enumerate(matrices):
-            loc = glGetUniformLocation(depth_program, f"shadow_matrices[{j}]")
-            glUniformMatrix4fv(loc, 1, GL_TRUE, np.array(mat))
+            glUniformMatrix4fv(glGetUniformLocation(depth_program, f"shadow_matrices[{j}]"), 1, GL_TRUE, np.array(mat))
         glUniform3f(glGetUniformLocation(depth_program, "light_pos"), *pl.pos)
         glUniform1f(glGetUniformLocation(depth_program, "far_plane"), far_plane)
         sm.bind()
-        for obj in all_objects:
-            obj.draw(override_program=depth_program)
+        for obj in all_objects: obj.draw(override_program=depth_program)
         sm.unbind(largura, altura)
 
-    # --- pass 2: spot light 2D depth ---
+    # pass 2: sombras de spot lights (2D)
     glUseProgram(spot_depth_program)
     for i, (sl, sm) in enumerate(zip(manager._spot_lights, spot_shadow_maps)):
         mat = sm.get_light_space_matrix(sl, far_plane)
-        glUniformMatrix4fv(
-            glGetUniformLocation(spot_depth_program, "light_space_matrix"),
-            1, GL_TRUE, np.array(mat)
-        )
+        glUniformMatrix4fv(glGetUniformLocation(spot_depth_program, "light_space_matrix"), 1, GL_TRUE, np.array(mat))
         sm.bind()
-        for obj in all_objects:
-            obj.draw(override_program=spot_depth_program)
+        for obj in all_objects: obj.draw(override_program=spot_depth_program)
         sm.unbind(largura, altura)
 
-    # --- pass 3: normal render ---
+    # pass 3: render principal
     glFinish()
-    print("depth passes done")
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
     glUseProgram(program)
     glUniform1i(glGetUniformLocation(program, "imagem"), 0)
+    ambient.set_strength(ambient_st if ambient_enabled else 0.0)
 
     for i, sm in enumerate(point_shadow_maps):
         glActiveTexture(GL_TEXTURE1 + i)
         glBindTexture(GL_TEXTURE_CUBE_MAP, sm.cubemap)
         glUniform1i(glGetUniformLocation(program, f"shadow_cubemaps[{i}]"), 1 + i)
 
-    offset = 5  # matches layout(binding = 5) above
     for i, sm in enumerate(spot_shadow_maps):
-        glActiveTexture(GL_TEXTURE0 + offset + i)
+        glActiveTexture(GL_TEXTURE0 + 5 + i)  # binding = 5 no fragment shader
         glBindTexture(GL_TEXTURE_2D, sm.texture)
-        glUniform1i(glGetUniformLocation(program, f"spot_shadow_maps[{i}]"), offset + i)
-
-
+        glUniform1i(glGetUniformLocation(program, f"spot_shadow_maps[{i}]"), 5 + i)
 
     glUniform1f(glGetUniformLocation(program, "far_plane"), far_plane)
     manager.upload(camera.get_position(), spot_shadow_maps=spot_shadow_maps)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glClearColor(1.0, 1.0, 1.0, 1.0)
-
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE if polygonal_mode else GL_FILL)
 
-    loc_view = glGetUniformLocation(program, "view")
-    glUniformMatrix4fv(loc_view, 1, GL_TRUE, camera.get_view())
+    glUniformMatrix4fv(glGetUniformLocation(program, "view"),       1, GL_TRUE, camera.get_view())
+    glUniformMatrix4fv(glGetUniformLocation(program, "projection"), 1, GL_TRUE, camera.get_projection())
 
-    loc_projection = glGetUniformLocation(program, "projection")
-    glUniformMatrix4fv(loc_projection, 1, GL_TRUE, camera.get_projection())
+    plane_light.pos = (plane_t[0], 21.15, plane_t[2])
 
-
-
-    entulho.set_parameters(0,destroyed)
+    entulho.set_parameters(0, destroyed)
     entulho.draw()
 
-
-    bunker.set_parameters(0,rubble)
+    bunker.set_parameters(0, rubble)
     bunker.draw()
-    
-    lampada.set_parameters(0,rubble)
+
+    lampada.set_parameters(0, rubble)
     lampada.set_parameters(1, [1.4, -2.65, -0.11])
     lampada.set_parameters(2, [90.0, 0.0, -1.0, 0.0])
     lampada.set_parameters(3, [-1.4, 2.65, 0.11])
     lampada.draw()
-    
-    lanterna.set_parameters(0,rubble)
-    #lanterna.set_parameters(1, [-1.32, 0.25, 1.6])
-    #lanterna.set_parameters(2, [45.0, 0.0, 1.0, 0.0])
-    #lanterna.set_parameters(3, [1.32, -0.25, -1.6])
+
+    lanterna.set_parameters(0, rubble)
     lanterna.draw()
-    
-    
-    porta.set_parameters(0,rubble)
+
+    porta.set_parameters(0, rubble)
     porta.draw()
-    
-    janela1.set_parameters(0,rubble)
+
+    janela1.set_parameters(0, rubble)
     janela1.draw()
-    
-    janela2.set_parameters(0,rubble)
+
+    janela2.set_parameters(0, rubble)
     janela2.draw()
-    
-    janela3.set_parameters(0,rubble)
+
+    janela3.set_parameters(0, rubble)
     janela3.draw()
-    
-    janela4.set_parameters(0,rubble)
+
+    janela4.set_parameters(0, rubble)
     janela4.draw()
 
-    mesa.set_parameters(0,rubble)
+    mesa.set_parameters(0, rubble)
     mesa.draw()
-    
 
-    cadeira.set_parameters(0,rubble)
+    cadeira.set_parameters(0, rubble)
     cadeira.draw()
-    
 
-    sacodormir.set_parameters(0,rubble)
+    sacodormir.set_parameters(0, rubble)
     sacodormir.draw()
-    
+
     for cacto in cactos:
-        cactotrue.set_parameters(0,[cacto[0],cacto[0],cacto[0]])
-        cactotrue.set_parameters(1,[cacto[1][0],0.0,cacto[1][1]])
+        cactotrue.set_parameters(0, [cacto[0], cacto[0], cacto[0]])
+        cactotrue.set_parameters(1, [cacto[1][0], 0.0, cacto[1][1]])
         cactotrue.draw()
-        
+
     for t in tumbleweed:
-        tumbleweedtrue.set_parameters(0,[t[0],t[0],t[0]])
-        tumbleweedtrue.set_parameters(1,[t[1][0],0.0,t[1][1]])
+        tumbleweedtrue.set_parameters(0, [t[0], t[0], t[0]])
+        tumbleweedtrue.set_parameters(1, [t[1][0], 0.0, t[1][1]])
         tumbleweedtrue.draw()
-    
+
     for p in pedras:
-        pedratrue.set_parameters(0,[p[0], p[0], p[0]])
-        pedratrue.set_parameters(1,[p[1][0], 0.0, p[1][1]])
+        pedratrue.set_parameters(0, [p[0], p[0], p[0]])
+        pedratrue.set_parameters(1, [p[1][0], 0.0, p[1][1]])
         pedratrue.draw()
 
-    plane.set_parameters(0,plane_t)
+    plane.set_parameters(0, plane_t)
     plane.draw()
 
-    bomba.set_parameters(0,bomb_r1)
-    bomba.set_parameters(1,bomb_t)
-    bomba.set_parameters(2,bomb_s)
+    holo.set_parameters(0, plane_t)
+    holo.draw()
+
+    bomba.set_parameters(0, bomb_r1)
+    bomba.set_parameters(1, bomb_t)
+    bomba.set_parameters(2, bomb_s)
     bomba.draw()
 
     explosao.set_parameters(0, explode_s)
     explosao.set_parameters(1, explode_t)
     explosao.draw()
 
-    arma.set_parameters(0,rubble)
+    arma.set_parameters(0, rubble)
     arma.set_parameters(1, [-3.2, -0.885, 0.7])
     arma.set_parameters(2, [45.0, 0.0, -1.0, 0.0])
     arma.set_parameters(3, [3.2, 0.885, -0.7])
     arma.draw()
-    
 
-    comida1.set_parameters(0,rubble)
+    comida1.set_parameters(0, rubble)
     comida1.draw()
-    
 
-    comida2.set_parameters(0,rubble)
+    comida2.set_parameters(0, rubble)
     comida2.draw()
-    
 
-    jornal.set_parameters(0,rubble)
+    jornal.set_parameters(0, rubble)
     jornal.draw()
-    
 
-    telefone.set_parameters(0,rubble)
+    telefone.set_parameters(0, rubble)
     telefone.draw()
-    
-
 
     sky.draw()
-
-
     floor.draw()
-
 
     glfw.swap_buffers(window)
 

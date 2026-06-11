@@ -11,7 +11,10 @@ class Object:
         self.transformations = []  # list of chars: 't', 'r', 's'
         self.parameters = []       # list of float lists, one per transformation
         self.mat_transform = np.eye(4,4)
-        self.visible = True 
+        self.visible = True
+        self.kd        = 1.0
+        self.ks        = 0.5
+        self.shininess = 32.0
 
     def set_model(self, angle_deg, r_x, r_y, r_z, t_x, t_y, t_z, s_x, s_y, s_z):
         m = glm.mat4(1.0)
@@ -93,6 +96,9 @@ class Object:
         if override_program is None:
             glActiveTexture(GL_TEXTURE0)
             glBindTexture(GL_TEXTURE_2D, self.textureId)
+            glUniform1f(glGetUniformLocation(prog, "kd"),        self.kd)
+            glUniform1f(glGetUniformLocation(prog, "ks"),        self.ks)
+            glUniform1f(glGetUniformLocation(prog, "shininess"), self.shininess)
 
 
 
