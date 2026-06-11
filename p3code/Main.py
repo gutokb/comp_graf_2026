@@ -77,8 +77,8 @@ lanterna.set_model(-90.0, 0, 1, 0, 1.32, -0.25, -1.6, 0.0011, 0.0011, 0.0011)
 lanterna.set_transformations(['s'])
 
 porta = Object.Object(loader, 'objetos/porta/porta.obj', ['objetos/porta/porta.png'], program)
-porta.set_model(90.0, 0, 1, 0, -3.20, -0.4, 0.18, 0.0099, 0.0087, 0.0087)
-porta.set_transformations(['s'])
+porta.set_model(90.0, 0, 1, 0, -3.20, -0.6, 0.18, 0.0099, 0.0094, 0.0090)
+porta.set_transformations(['s','t','r','t'])
 
 janela1 = Object.Object(loader, 'objetos/janela/janela.obj', ['objetos/janela/janela.png'], program)
 janela1.set_model(90.0, 0, 0, 1, 1.40, 1.0, -2.45, 0.0057, 0.0057, 0.0057)
@@ -312,6 +312,11 @@ all_objects = [bunker, floor, mesa, porta, janela1, janela2, janela3, janela4, c
 
 glfw.show_window(window)
 while not glfw.window_should_close(window):
+
+    if destroyed[0] == 1.0:
+        manager._point_lights[0].enabled = False
+        manager._spot_lights[1].enabled = False
+
     glfw.poll_events()
     camera.tick(glfw.get_time())
 
@@ -381,6 +386,9 @@ while not glfw.window_should_close(window):
     lanterna.draw()
 
     porta.set_parameters(0, rubble)
+    #porta.set_parameters(1,[3.20, 0.6, -0.18])
+    #porta.set_parameters(2,[90.0, 0, 0, 1])
+    #porta.set_parameters(3,[-3.20, -0.5, 0.18])
     porta.draw()
 
     janela1.set_parameters(0, rubble)
