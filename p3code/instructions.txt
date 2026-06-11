@@ -1,0 +1,8 @@
+extrair zip com os objetos e colocalos aqui dentro para poder rodar
+
+basta instalar os packages e rodar a main com "python Main.py"
+
+controles
+
+seta esquerda - avança o tempo
+espaço - solta a bomba
